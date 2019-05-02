@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" FocusVisualSecondaryBrush="#E5FFFFFF">
         <Button x:Name="PDFPreview" Content="" HorizontalAlignment="Left" Height="450" Margin="50,50,0,0" VerticalAlignment="Top" Width="450" FontSize="36" FontFamily="Myriad Pro" FontWeight="Bold" RenderTransformOrigin="0.5,0.5" Click="PDFPreview_Click" Tapped="PDFPreview_Tapped">
             <Button.Background>
                 <ImageBrush ImageSource="/Resources/TempLite-02.png" Stretch="None"/>

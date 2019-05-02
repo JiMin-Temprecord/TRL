@@ -1,21 +1,21 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
-using TRL.Constant;
+using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace TRL
 {
     public class HexFileDecoder
     {
-        JObject jsonObject;
-
         string loggerState;
         string batteryPercentage;
-        string userData;
-        string emailID =  string.Empty;
+        string userData = string.Empty;
+        string emailID = string.Empty;
 
         bool loopOverwrite = false;
         bool fahrenheit = false;
@@ -36,7 +36,7 @@ namespace TRL
         int totalUses = 0;
         int loopOverwriteStartAddress = 0;
         int dataAddress = 32767;
-        int recordedSamples = 0;
+        long recordedSamples = 0;
         int tagNumbers = 0;
 
         int[] compressionTable = new int[128];
@@ -59,7 +59,7 @@ namespace TRL
         double[] withinLimit = new double[8];
         double[] belowLimit = new double[8];
         double[] aboveLimit = new double[8];
-
+        
         List<List<double>> Data = new List<List<double>>();
         List<int> Tag = new List<int>();
 
@@ -83,72 +83,78 @@ namespace TRL
             this.jsonFile = loggerInformation.JsonFile;
         }
 
-        public void ReadIntoJsonFileAndSetupDecoder()
+        public async Task<bool> ReadIntoJsonFileAndSetupDecoder()
         {
-            GetJsonObject();
+            var jsonObject = await GetJsonObject();
+            var hexString = await GetHexFile();
+            var hexStringArray = hexString.Split("\r\n");
 
             if (loggerInformation.LoggerName == DecodeConstant.G4)
             {
-                numberChannel = ReadIntFromJObject(jsonObject, DecodeConstant.NumberOfChannels);
-                userDataLength = ReadIntFromJObject(jsonObject, DecodeConstant.UserDataLength);
-                emailID = ReadStringFromJObject(jsonObject, DecodeConstant.EmailID);
-                userData = ReadStringFromJObject(jsonObject, DecodeConstant.UserData);
-                loggerState = ReadStringFromJObject(jsonObject, DecodeConstant.LoggerState);
-                batteryPercentage = ReadIntFromJObject(jsonObject, DecodeConstant.BatteryPercentage) + DecodeConstant.Percentage;
-                loopOverwriteStartAddress = ReadIntFromJObject(jsonObject, DecodeConstant.LoopOverwriteAddress);
-                fahrenheit = ReadBoolFromJObject(jsonObject, DecodeConstant.IsFahrenhiet);
-                utcReferenceTime = ReadIntFromJObject(jsonObject, DecodeConstant.UTCReferenceTime);
-                totalRTCticks = ReadIntFromJObject(jsonObject, DecodeConstant.TotalRTCTicks);
-                totalSamplingEvents = ReadIntFromJObject(jsonObject, DecodeConstant.TotalSamplingEvents);
-                totalUses = ReadIntFromJObject(jsonObject, DecodeConstant.TotalUses);
-                startDelay = ReadIntFromJObject(jsonObject, DecodeConstant.StartDelay);
-                samplePeriod = ReadIntFromJObject(jsonObject, DecodeConstant.SamplePeriod);
-                ticksSinceStart = ReadIntFromJObject(jsonObject, DecodeConstant.TicksSinceStart);
-                ticksAtLastSample = ReadIntFromJObject(jsonObject, DecodeConstant.TicksSinceLastSample);
-                recordedSamples = ReadIntFromJObject(jsonObject, DecodeConstant.TotalRecordedSamples);
-                timeAtFirstSameple = ReadLongFromJObject(jsonObject, DecodeConstant.TimeAtFirstSample);
-                ReadStringFromJObject(jsonObject, DecodeConstant.CompressionTable);
-                ReadStringFromJObject(jsonObject, DecodeConstant.Sensor);
-                dataAddress = ReadIntFromJObject(jsonObject, DecodeConstant.DataEndPointer);
-                lowerLimit = ReadArrayFromJObject(jsonObject, DecodeConstant.LowerLimit);
-                upperLimit = ReadArrayFromJObject(jsonObject, DecodeConstant.UpperLimit);
-                ReadStringFromJObject(jsonObject, DecodeConstant.Data);
+                userDataLength = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.UserDataLength);
+                numberChannel = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.NumberOfChannels);
+                emailID = ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.EmailID);
+                userData = ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.UserData);
+                loggerState = ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.LoggerState);
+                batteryPercentage = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.BatteryPercentage) + DecodeConstant.Percentage;
+                loopOverwriteStartAddress = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.LoopOverwriteAddress);
+                fahrenheit = ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.IsFahrenhiet);
+                utcReferenceTime = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.UTCReferenceTime);
+                totalRTCticks = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalRTCTicks);
+                totalSamplingEvents = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalSamplingEvents);
+                totalUses = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalUses);
+                startDelay = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.StartDelay);
+                samplePeriod = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.SamplePeriod);
+                ticksSinceStart = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TicksSinceStart);
+                ticksAtLastSample = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TicksSinceLastSample);
+                recordedSamples = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalRecordedSamples);
+                timeAtFirstSameple = ReadLongFromJObject(jsonObject, hexStringArray, DecodeConstant.TimeAtFirstSample);
+                ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.CompressionTable);
+                ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.Sensor);
+                dataAddress = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.DataEndPointer);
+                lowerLimit = ReadArrayFromJObject(jsonObject, hexStringArray, DecodeConstant.LowerLimit);
+                upperLimit = ReadArrayFromJObject(jsonObject, hexStringArray, DecodeConstant.UpperLimit);
+                ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.Data);
+                return true;
             }
 
             if (loggerInformation.LoggerName == DecodeConstant.MonT)
             {
-                numberChannel = ReadIntFromJObject(jsonObject, DecodeConstant.NumberOfChannels);
-                userDataLength = ReadIntFromJObject(jsonObject, DecodeConstant.UserDataLength);
-                userData = ReadStringFromJObject(jsonObject, DecodeConstant.UserData);
-                loggerState = ReadStringFromJObject(jsonObject, DecodeConstant.LoggerState);
-                fahrenheit = ReadBoolFromJObject(jsonObject, DecodeConstant.IsFahrenhiet);
-                utcReferenceTime = ReadIntFromJObject(jsonObject, DecodeConstant.UTCReferenceTime);
-                totalRTCticks = ReadIntFromJObject(jsonObject, DecodeConstant.TotalRTCTicks);
-                manufactureDate = ReadLongFromJObject(jsonObject, DecodeConstant.ManufactureDate);
-                totalSamplingEvents = ReadIntFromJObject(jsonObject, DecodeConstant.TotalSamplingEvents);
-                totalUses = ReadIntFromJObject(jsonObject, DecodeConstant.TotalUses);
-                batteryPercentage = ReadIntFromJObject(jsonObject, DecodeConstant.BatteryPercentage) + DecodeConstant.Percentage;
-                loopOverwrite = ReadBoolFromJObject(jsonObject, DecodeConstant.IsLoopOverwrite);
-                startDelay = ReadIntFromJObject(jsonObject, DecodeConstant.StartDelay);
-                samplePeriod = ReadIntFromJObject(jsonObject, DecodeConstant.SamplePeriod);
-                secondsTimer = ReadIntFromJObject(jsonObject, DecodeConstant.SecondTimer);
-                ticksSinceStart = ReadIntFromJObject(jsonObject, DecodeConstant.TicksSinceStart);
-                ticksAtLastSample = ReadIntFromJObject(jsonObject, DecodeConstant.TicksSinceLastSample);
-                timeAtFirstSameple = ReadLongFromJObject(jsonObject, DecodeConstant.MonTTimeAtFirstSample);
-                lowestTemp = Convert.ToDouble(ReadStringFromJObject(jsonObject, DecodeConstant.LowestTemp));
-                resolution = Convert.ToDouble(ReadStringFromJObject(jsonObject, DecodeConstant.ResolutionRatio)) / 100;
-                recordedSamples = (int)ReadLongFromJObject(jsonObject, DecodeConstant.TotalRecordedSamples);
-                lowerLimit = ReadArrayFromJObject(jsonObject, DecodeConstant.LowerLimit);
-                upperLimit = ReadArrayFromJObject(jsonObject, DecodeConstant.UpperLimit);
-                ReadStringFromJObject(jsonObject, DecodeConstant.MonTData);
+                numberChannel = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.NumberOfChannels);
+                userDataLength = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.UserDataLength);
+                userData = ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.UserData);
+                loggerState = ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.LoggerState);
+                fahrenheit = ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.IsFahrenhiet);
+                utcReferenceTime = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.UTCReferenceTime);
+                totalRTCticks = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalRTCTicks);
+                manufactureDate = ReadLongFromJObject(jsonObject, hexStringArray, DecodeConstant.ManufactureDate);
+                totalSamplingEvents = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalSamplingEvents);
+                totalUses = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalUses);
+                batteryPercentage = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.BatteryPercentage) + DecodeConstant.Percentage;
+                loopOverwrite = ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.IsLoopOverwrite);
+                startDelay = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.StartDelay);
+                samplePeriod = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.SamplePeriod);
+                secondsTimer = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.SecondTimer);
+                ticksSinceStart = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TicksSinceStart);
+                ticksAtLastSample = ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TicksSinceLastSample);
+                timeAtFirstSameple = ReadLongFromJObject(jsonObject, hexStringArray, DecodeConstant.MonTTimeAtFirstSample);
+                lowestTemp = Convert.ToDouble(ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.LowestTemp));
+                resolution = Convert.ToDouble(ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.ResolutionRatio)) / 100;
+                recordedSamples = ReadLongFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalRecordedSamples);
+                lowerLimit = ReadArrayFromJObject(jsonObject, hexStringArray, DecodeConstant.LowerLimit);
+                upperLimit = ReadArrayFromJObject(jsonObject, hexStringArray, DecodeConstant.UpperLimit);
+                ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.MonTData);
+                return true;
             }
+
+            return false;
         }
 
-        public LoggerVariables AssignLoggerValue()
+        public async Task<LoggerVariables> AssignLoggerValue()
         {
             var loggerVariable = new LoggerVariables();
 
-            loggerVariable.RecordedSamples = recordedSamples;
+            loggerVariable.RecordedSamples = (int)recordedSamples;
             loggerVariable.SerialNumber = serialNumber;
             loggerVariable.LoggerState = loggerState;
             loggerVariable.BatteryPercentage = batteryPercentage;
@@ -230,147 +236,153 @@ namespace TRL
             }
         }
 
-        byte[] ReadHex(string[] currentinfo)
+        byte[] ReadHex(string[] currentinfo, String[] hexStringArray)
         {
             byte[] bytes = { };
             var addtoread = string.Empty;
-            var hexPath = Path.GetTempPath() + "\\" + serialNumber + ".hex";
+            
+            for (int i = 0; i < hexStringArray.Length-1; i++)
+            { 
+                string line = hexStringArray[i];
+                int diff = 0;
 
-            try
-            {
-                if (File.Exists(hexPath))
+                string address = line.Substring(0, 6);
+                string data = line.Substring(7, line.Length - 7);
+                string temp = string.Empty;
+
+                Debug.WriteLine("ADDRESS : " + address);
+
+                if (Convert.ToInt32(currentinfo[0], 16) >= Convert.ToInt32(address, 16))
+                    addtoread = address;
+
+                if (addtoread == address)
                 {
-                    using (var sr = new StreamReader(hexPath))
+                    diff = Convert.ToInt32(currentinfo[0], 16) - Convert.ToInt32(address, 16);
+                    if (diff >= 0 && diff < 58) // reader can only send 64bytes at a time
                     {
-                        string line;
-                        int diff = 0;
-                        while ((line = sr.ReadLine()) != null)
+                        int infolength = Convert.ToInt32(currentinfo[1]);
+
+                        if (infolength == 32768) // if we are reading DATA
                         {
-                            string address = line.Substring(0, 6);
-                            string data = line.Substring(7, line.Length - 7);
-                            string temp = string.Empty;
+                            infolength = dataAddress;
 
-                            if (Convert.ToInt32(currentinfo[0], 16) >= Convert.ToInt32(address, 16))
-                                addtoread = address;
-
-                            if (addtoread == address)
+                            if (loopOverwriteStartAddress > 0)
+                                infolength = G4MemorySize + 1;
+                        }
+                        if (infolength > 58)
+                        {
+                            int readinfo = 58 - diff;
+                            while (infolength > 0)
                             {
-                                diff = Convert.ToInt32(currentinfo[0], 16) - Convert.ToInt32(address, 16);
-                                if (diff >= 0 && diff < 58) // reader can only send 64bytes at a time
+                                temp += data.Substring(diff * 2, readinfo * 2);
+                                line = hexStringArray[i++];
+                                if (line != null)
                                 {
-                                    int infolength = Convert.ToInt32(currentinfo[1]);
+                                    data = line.Substring(7, line.Length - 7);
+                                    infolength = infolength - readinfo;
+                                    diff = 0;
 
-                                    if (infolength == 32768) // if we are reading DATA
+                                    if (infolength > (data.Length / 2))
                                     {
-                                        infolength = dataAddress;
-
-                                        if (loopOverwriteStartAddress > 0)
-                                            infolength = G4MemorySize + 1;
-                                    }
-                                    if (infolength > 58)
-                                    {
-                                        int readinfo = 58 - diff;
-                                        while (infolength > 0)
-                                        {
-                                            temp += data.Substring(diff * 2, readinfo * 2);
-                                            line = sr.ReadLine();
-                                            if (line != null)
-                                            {
-                                                data = line.Substring(7, line.Length - 7);
-                                                infolength = infolength - readinfo;
-                                                diff = 0;
-
-                                                if (infolength > (data.Length / 2))
-                                                {
-                                                    readinfo = data.Length / 2;
-                                                }
-                                                else
-                                                {
-                                                    readinfo = infolength;
-                                                }
-                                            }
-                                            else { break; }
-                                        }
-                                        int totallength = temp.Length;
-                                        bytes = new byte[totallength / 2];
-                                        for (int i = 0; i < totallength; i += 2)
-                                            bytes[i / 2] = (byte)(Convert.ToByte(temp.Substring(i, 2), 16));
-                                        return bytes;
+                                        readinfo = data.Length / 2;
                                     }
                                     else
                                     {
-                                        if (data.Length < diff * 2 + infolength * 2)
-                                        {
-                                            var readNextLine = (diff * 2 + infolength * 2) - 58 * 2;
-                                            temp = data.Substring(diff * 2, infolength * 2 - readNextLine);
-                                            line = sr.ReadLine();
-                                            data = line.Substring(7, line.Length - 7);
-                                            temp += data.Substring(0, readNextLine);
-                                        }
-                                        else
-                                            temp = data.Substring(diff * 2, infolength * 2);
-                                        int totallength = temp.Length;
-                                        bytes = new byte[totallength / 2];
-                                        for (int i = 0; i < totallength; i += 2)
-                                            bytes[i / 2] = (byte)(Convert.ToByte(temp.Substring(i, 2), 16));
-                                        return bytes;
+                                        readinfo = infolength;
                                     }
                                 }
+                                else { break; }
                             }
+                            int totallength = temp.Length;
+                            bytes = new byte[totallength / 2];
+                            for (int j = 0; j < totallength; j += 2)
+                                bytes[j / 2] = (byte)(Convert.ToByte(temp.Substring(j, 2), 16));
+                            return bytes;
+                        }
+                        else
+                        {
+                            if (data.Length < diff * 2 + infolength * 2)
+                            {
+                                var readNextLine = (diff * 2 + infolength * 2) - 58 * 2;
+                                temp = data.Substring(diff * 2, infolength * 2 - readNextLine);
+                                line = hexStringArray[i];
+                                data = line.Substring(7, line.Length - 7);
+                                temp += data.Substring(0, readNextLine);
+                            }
+                            else
+                                temp = data.Substring(diff * 2, infolength * 2);
+                            int totallength = temp.Length;
+                            bytes = new byte[totallength / 2];
+                            for (int j = 0; j < totallength; j += 2)
+                                bytes[j / 2] = (byte)(Convert.ToByte(temp.Substring(j, 2), 16));
+                            return bytes;
                         }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                // Let the user know what went wrong.
-                Console.WriteLine("The file could not be read:");
-                Console.WriteLine(e.Message);
             }
             return bytes;
         }
 
         #region Reading Json File
-        string ReadStringFromJObject(JObject jsonObject, string info)
+        string ReadStringFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            return CallDecodeFunctions(decodeInfo);
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
+            return CallDecodeFunctions(decodeInfo, decodeByte);
         }
 
-        int ReadIntFromJObject(JObject jsonObject, string info)
+        int ReadIntFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            return Convert.ToInt32(CallDecodeFunctions(decodeInfo), 16);
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
+            var intString = CallDecodeFunctions(decodeInfo, decodeByte);
+            return Convert.ToInt32(intString, 16);
         }
 
-        long ReadLongFromJObject(JObject jsonObject, string info)
+        long ReadLongFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            return Convert.ToInt32(CallDecodeFunctions(decodeInfo));
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
+            var longString = CallDecodeFunctions(decodeInfo, decodeByte);
+            return Convert.ToInt32(longString);
         }
 
-        double[] ReadArrayFromJObject(JObject jsonObject, string info)
+        double[] ReadArrayFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            var limit = CallDecodeFunctions(decodeInfo).Split(','); ;
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
+            var limitString = CallDecodeFunctions(decodeInfo, decodeByte);
+            var limit = limitString.Split(','); ;
             return Array.ConvertAll<string, double>(limit, Double.Parse);
         }
 
-        bool ReadBoolFromJObject(JObject jsonObject, string info)
+        bool ReadBoolFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            return Convert.ToBoolean(CallDecodeFunctions(decodeInfo));
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
+            return Convert.ToBoolean(CallDecodeFunctions(decodeInfo, decodeByte));
         }
 
-         private async void GetJsonObject()
+        async Task<String> GetHexFile()
         {
-            var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri(AppDomain.CurrentDomain.BaseDirectory + "..//Json//G4.json"));
-            var randomAccessStream = await file.OpenReadAsync();
-            Stream stream = randomAccessStream.AsStreamForRead();
+            var hexUri = new Uri("ms-appx:///Json/L0001066.hex");
+            var file = await StorageFile.GetFileFromApplicationUriAsync(hexUri);
+            return await FileIO.ReadTextAsync(file);
+        }
+        async Task<JObject> GetJsonObject()
+        {
+            var stream = await LoadJsonFile(new Uri("ms-appx:///Json/G4.json"));
             using (var sr = new StreamReader(stream))
             {
-                jsonObject = JObject.Parse(sr.ReadToEnd());
+                return JObject.Parse(sr.ReadToEnd());
             }
+        }
+
+        async Task<Stream> LoadJsonFile(Uri fileUri)
+        {
+            var file = await StorageFile.GetFileFromApplicationUriAsync(fileUri);
+            var randomAccessStream = await file.OpenReadAsync();
+            return randomAccessStream.AsStreamForRead();
         }
 
         string[] JsontoString(JObject jsonObject, string info)
@@ -386,10 +398,9 @@ namespace TRL
         #endregion
 
         #region Decoding Hex Functions 
-        string CallDecodeFunctions(string[] stringArrayInfo)
+        string CallDecodeFunctions(string[] stringArrayInfo, byte[] decodeByte)
         {
             bool bitbool = false;
-            var decodeByte = ReadHex(stringArrayInfo);
             switch (stringArrayInfo[2])
             {
                 case "_1_Byte_to_Boolean":
@@ -929,10 +940,12 @@ namespace TRL
             }
         }
 
-        void SensorDecoding(byte[] decodeByte)
+        async void SensorDecoding(byte[] decodeByte)
         {
             var offset = 11;
             var sensorAddressArray = new string[2];
+            var hexString = await GetHexFile();
+            var hexStringArray = hexString.Split("\r\n");
 
             for (int i = 0; i < numberChannel; i++)
             {
@@ -941,7 +954,7 @@ namespace TRL
                 sensorAddressArray[0] = decodeByte[pointer + 10].ToString("x02") + decodeByte[pointer + 9].ToString("x02");
                 sensorAddressArray[1] = "21"; // size of the sensor information 
 
-                var sensorInfoArray = ReadHex(sensorAddressArray);
+                var sensorInfoArray = ReadHex(sensorAddressArray, hexStringArray);
 
                 if (sensorInfoArray.Length != 0)
                 {

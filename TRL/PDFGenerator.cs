@@ -3,12 +3,11 @@ using Syncfusion.Pdf.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using TRL.Constant;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Popups;
-using TRL.Constant;
-using System.Reflection;
-using System.Drawing;
 
 namespace TRL
 {
@@ -19,11 +18,11 @@ namespace TRL
         string path = Windows.ApplicationModel.Package.Current.InstalledLocation + "\\Images\\";
         int pageNumber = 0;
         
-        public bool CreatePDF(LoggerInformation loggerInformation)
+        public async void CreatePDF(LoggerInformation loggerInformation)
         {
             var decoder = new HexFileDecoder(loggerInformation);
-            decoder.ReadIntoJsonFileAndSetupDecoder();
-            var loggerVariables = decoder.AssignLoggerValue();
+            await decoder.ReadIntoJsonFileAndSetupDecoder();
+            var loggerVariables = await decoder.AssignLoggerValue();
 
             double lineCounter = 80;
             var channelTwoEnabled = loggerVariables.IsChannelTwoEnabled;
@@ -34,8 +33,8 @@ namespace TRL
             var font = new PdfStandardFont(PdfFontFamily.Courier, 11, PdfFontStyle.Regular);
             var boldFont = new PdfStandardFont(PdfFontFamily.Courier, 11, PdfFontStyle.Bold);
 
-            if (loggerVariables.LoggerState == "Ready" || loggerVariables.LoggerState == "Delay")
-                return false;
+            //if (loggerVariables.LoggerState == "Ready" || loggerVariables.LoggerState == "Delay")
+                //return false;
             
             var newPage = CreateNewPage(font, loggerInformation.SerialNumber);
             var pdfPage = newPage.Graphics;
@@ -67,7 +66,7 @@ namespace TRL
                 lineCounter += PDFcoordinates.line_inc * lineConterMultiplier;
             }
 
-            if ((int)channelOne.OutsideLimits == 0 && (int)channelTwo.OutsideLimits == 0)
+            /*if ((int)channelOne.OutsideLimits == 0 && (int)channelTwo.OutsideLimits == 0)
             {
                 var imageStream = typeof(MainPage).GetTypeInfo().Assembly.GetManifestResourceStream(LabelConstant.WithinLimitImage);
                 var greentick = new PdfBitmap(imageStream);
@@ -80,7 +79,7 @@ namespace TRL
                 var redwarning = new PdfBitmap(imageStream);
                 pdfPage.DrawImage(redwarning, PDFcoordinates.sign_left, PDFcoordinates.sign_top, 90, 80);
                 pdfPage.DrawString(LabelConstant.LimitsExceeded, font, PdfBrushes.Black, PDFcoordinates.limitinfo_startX, PDFcoordinates.limitinfo_startY);
-            }
+            }*/
             
             //Draw the boxes
             pdfPage.DrawRectangle(pen, PDFcoordinates.box1_X1, PDFcoordinates.box1_Y1, PDFcoordinates.box1_X2 - PDFcoordinates.box1_X1, PDFcoordinates.box1_Y2 - PDFcoordinates.box1_Y1);
@@ -167,7 +166,7 @@ namespace TRL
             pdfDocument.Close(true);
 
             Save(stream, filename);
-            return true;
+            //return true;
         }
         
         void DrawGraph(HexFileDecoder decoder, LoggerVariables pdfVariables, PdfGraphics draw, PdfPen pen, PdfFont font)
@@ -432,8 +431,8 @@ namespace TRL
             var serialPen = new PdfPen(PdfBrushes.Blue);
             var serialfont = new PdfStandardFont(PdfFontFamily.Courier, 18);
 
-            var imageStream = typeof(MainPage).GetTypeInfo().Assembly.GetManifestResourceStream(LabelConstant.LogoIcon);
-            PdfBitmap logo = new PdfBitmap(imageStream);
+            //var imageStream = typeof(MainPage).GetTypeInfo().Assembly.GetManifestResourceStream("TRL.Images."+LabelConstant.LogoIcon);
+            //PdfBitmap logo = new PdfBitmap(imageStream);
 
             pageNumber++;
 
@@ -448,7 +447,7 @@ namespace TRL
             draw.DrawString(LabelConstant.Website, font, PdfBrushes.Black, PDFcoordinates.siteX, PDFcoordinates.siteY);
             draw.DrawString(DateTime.UtcNow.ToString("dd/MM/yyy HH:mm:sss UTC"), font, PdfBrushes.Black, PDFcoordinates.dateX, PDFcoordinates.dateY);
             draw.DrawString("0.1.9.1", font, PdfBrushes.Black, PDFcoordinates.versionX, PDFcoordinates.versionY);
-            draw.DrawImage(logo, 320, 10, 65, 40);
+            //draw.DrawImage(logo, 320, 10, 65, 40);
 
             return page;
         }

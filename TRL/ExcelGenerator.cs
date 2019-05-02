@@ -18,14 +18,17 @@ namespace TRL
         public async void CreateExcelAsync(LoggerInformation loggerInformation)
         {
             var decoder = new HexFileDecoder(loggerInformation);
-            decoder.ReadIntoJsonFileAndSetupDecoder();
-            var loggerVariables = decoder.AssignLoggerValue();
+            await decoder.ReadIntoJsonFileAndSetupDecoder();
+            var loggerVariables = await decoder.AssignLoggerValue();
 
             var excelPath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".xlsx";
 
             using (var excel = new ExcelEngine())
             {
-                var workbook = excel.Excel.Workbooks.Create(1);
+                var application = excel.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2016;
+
+                var workbook = application.Workbooks.Create(1);
                 var workSheet = workbook.Worksheets[0];
                 CreateLayout(workSheet, loggerInformation, loggerVariables);
 
@@ -35,8 +38,8 @@ namespace TRL
                 savePicker.FileTypeChoices.Add("Excel Files", new List<string>() { ".xlsx" });
                 StorageFile storageFile = await savePicker.PickSaveFileAsync();
 
-                workbook.SaveAsAsync(storageFile);
-                Launcher.LaunchFileAsync(storageFile);
+                await workbook.SaveAsAsync(storageFile);
+                await Launcher.LaunchFileAsync(storageFile);
                 //Console.WriteLine("EXCEL Created !");
             }
         }
@@ -47,10 +50,10 @@ namespace TRL
             var channelTwoEnabled = pdfVariables.IsChannelTwoEnabled;
             var channelOne = pdfVariables.ChannelOne;
             var channelTwo = pdfVariables.ChannelTwo;
-            var path = Windows.ApplicationModel.Package.Current.InstalledLocation + "\\Images\\";
+            var path = Windows.Storage.ApplicationData.Current.LocalFolder + "/Images/";
             var assembly = typeof(App).GetTypeInfo().Assembly;
             
-            if (channelOne.OutsideLimits == 0 && channelTwo.OutsideLimits == 0)
+            /*if (channelOne.OutsideLimits == 0 && channelTwo.OutsideLimits == 0)
             {
                 var tickImage = assembly.GetManifestResourceStream(LabelConstant.WithinLimitImage);
                 var setPosition = workSheet.Pictures.AddPicture(5,5, tickImage);
@@ -81,7 +84,7 @@ namespace TRL
             setLogoPosition.Height = 103;
             setLogoPosition.Width = 63;
             setLogoPosition.Top = 10;
-            setLogoPosition.Left = 130;
+            setLogoPosition.Left = 130;*/
             workSheet.Range[15,2,15,3].CellStyle.Font.Bold = true;
             workSheet.Range[50,2,50,3].CellStyle.Font.Bold = true;
             workSheet.Range[2,1,2,5].CellStyle.Font.Size = 20;
@@ -206,8 +209,8 @@ namespace TRL
             graph.Height = 500;
             graph.Width = 500;
 
-            var xSeries = worksheet.Range[start,1,end-1,1];
-            var ySeries = worksheet.Range[start,2,end-1,2];
+            var xSeries = worksheet.Range[start,1,end,1];
+            var ySeries = worksheet.Range[start,2,end,2];
 
             var seriesOne = graph.Series.Add(LabelConstant.GraphChannelOneLabel + channelOne.Unit);
             seriesOne.Values = ySeries;
@@ -215,7 +218,7 @@ namespace TRL
 
             if (pdfVariables.IsChannelTwoEnabled)
             {
-                var ySeries2 = worksheet.Range[start, 3, end - 1, 3];
+                var ySeries2 = worksheet.Range[start, 3, end, 3];
                 var seriesTwo = graph.Series.Add(LabelConstant.GraphChannelOneLabel + channelOne.Unit);
                 seriesTwo.Values = ySeries;
                 seriesTwo.CategoryLabels = xSeries;

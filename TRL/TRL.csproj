@@ -143,12 +143,15 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="Json\G4.json">
+    <Content Include="Json\G4.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Json\MonT.json">
+    </Content>
+    <Content Include="Json\MonT.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="Json\L0001066.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="TRL_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
