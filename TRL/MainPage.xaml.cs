@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using Windows.UI.Xaml.Controls;
 
@@ -28,24 +29,32 @@ namespace TRL
             this.InitializeComponent();
         }
 
-        private void PDFPreview_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        async void PDFPreview_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            var pdfGenerator = new PDFGenerator();
-            pdfGenerator.CreatePDF(loggerInformation);
+            var reader = new Reader();
+            var communication = new Communication();
+            var loggerInformation = new LoggerInformation();
 
-            var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
+            var usbDevice = reader.FindReader();
+            while (usbDevice == null)
+                usbDevice = reader.FindReader();
+
+            await communication.FindLogger(usbDevice);
+            var errorDectected = await communication.GenerateHexFile(usbDevice, loggerInformation);
+
+            if (!errorDectected)
+            {
+                var pdfGenerator = new PDFGenerator();
+                pdfGenerator.CreatePDF(loggerInformation);
+                var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
+            }
         }
 
-        private void PDFPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        async void PDFPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            var pdfGenerator = new PDFGenerator();
-            pdfGenerator.CreatePDF(loggerInformation);
-
-            var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
-
         }
 
-        private void ExcelPreview_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        void ExcelPreview_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
             var excelGenerator = new ExcelGenerator();
             excelGenerator.CreateExcelAsync(loggerInformation);
@@ -53,7 +62,7 @@ namespace TRL
             var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".xlsx";
         }
 
-        private void ExcelPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        void ExcelPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             var excelGenerator = new ExcelGenerator();
             excelGenerator.CreateExcelAsync(loggerInformation);

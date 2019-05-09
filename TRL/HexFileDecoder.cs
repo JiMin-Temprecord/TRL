@@ -365,13 +365,14 @@ namespace TRL
 
         async Task<String> GetHexFile()
         {
+            var hexPath = Path.GetTempPath() + "\\" + serialNumber + ".hex";
             var hexUri = new Uri("ms-appx:///Json/L0001066.hex");
             var file = await StorageFile.GetFileFromApplicationUriAsync(hexUri);
             return await FileIO.ReadTextAsync(file);
         }
         async Task<JObject> GetJsonObject()
         {
-            var stream = await LoadJsonFile(new Uri("ms-appx:///Json/G4.json"));
+            var stream = await LoadJsonFile(new Uri("ms-appx:///Json/" + jsonFile));
             using (var sr = new StreamReader(stream))
             {
                 return JObject.Parse(sr.ReadToEnd());

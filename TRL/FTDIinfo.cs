@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Windows.Devices.Usb;
 
 namespace TRL
 {
     public class FTDIInfo
     {
-        public FTDIInfo (string portName, uint deviceID)
+        public FTDIInfo (UsbDevice usbDevice, string ftdiID)
         {
-            PortName = portName;
-            DeviceID = deviceID;
+            PortName = ftdiID;
+            UsbDevice = usbDevice;
         }
 
         public string PortName { get; }
-        public uint DeviceID { get; }
+        public UsbDevice UsbDevice { get; }
 
     }
 }

@@ -28,5 +28,20 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <uap:Capability Name="removableStorage" />
+    <DeviceCapability Name="usb">
+      <Device Id="vidpid:0403 D469">
+        <!--<Function Type="name:vendorSpecific"/>-->
+        <Function Type="winUsbId:88bae032-5a81-49f0-bc3d-a4ff138216d6"/>
+      </Device>
+      <Device Id="vidpid:0403 D468">
+        <!--<Function Type="name:vendorSpecific"/>-->
+        <Function Type="winUsbId:36fc9e60-c465-11cf-8056-444553540000"/>
+      </Device>
+      <Device Id="vidpid:0403 6015">
+        <!--<Function Type="name:vendorSpecific"/>-->
+        <Function Type="winUsbId:88bae032-5a81-49f0-bc3d-a4ff138216d6"/>
+      </Device>
+    </DeviceCapability>
+
   </Capabilities>
 </Package>
