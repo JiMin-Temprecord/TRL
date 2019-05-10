@@ -22,13 +22,19 @@ namespace TRL
         public async Task<StringBuilder> FindLogger(UsbDevice usbDevice)
         {
             var msg = new StringBuilder();
-            
+
             while (msg.Length < 3)
             {
                 WriteBytes(new WakeUpByteWritter(), usbDevice);
                 Task.Delay(400).Wait();
                 msg = await ReadBytes(usbDevice);
-                System.Threading.Thread.Sleep(1000);
+                if (msg.Length > 3 && (msg.ToString().Substring(0, 4) == "0004"))
+                    break;
+                else
+                {
+                    msg.Clear();
+                    System.Threading.Thread.Sleep(1000);
+                }
             }
 
             return msg;
@@ -40,8 +46,8 @@ namespace TRL
 
             if (Hexes.Count > 0)
             {
-                Debug.WriteLine("DIRECTORY : " + Path.GetTempPath());
-                var sw = new StreamWriter(Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".hex");
+                var path =  Path.GetTempPath() +loggerInformation.SerialNumber + ".hex";
+                var sw = new StreamWriter(path);
                 foreach (var hex in Hexes)
                 {
                     sw.WriteLine(hex.ToString());
@@ -57,17 +63,16 @@ namespace TRL
             var ReaderAvailable = true;
             var readPipe = usbDevice.DefaultInterface.BulkInPipes[0];
             var stream = readPipe.InputStream;
-            var reader = new DataReader(stream);
             
             recoverCount = 0;
             WriteBytes(new WakeUpByteWritter(), usbDevice);
-            Task.Delay(400).Wait();
+            Task.Delay(50).Wait();
             var currentAddress = await ReadBytesWakeUp(usbDevice, loggerInformation, recievemsg, Hexes);
 
             Debug.WriteLine(loggerInformation.LoggerType);
 
             WriteBytes(new SetReadByteWritter(loggerInformation.LoggerType), usbDevice);
-            Task.Delay(400).Wait();
+            Task.Delay(50).Wait(); // can never be 100
             await  ReadBytesSetRead(usbDevice, currentAddress, loggerInformation, Hexes);
 
             while (ReaderAvailable && currentAddress != null && (currentAddress.MemoryNumber <= loggerInformation.MaxMemory))
@@ -82,7 +87,7 @@ namespace TRL
                 }
 
                 WriteBytes(new ReadLoggerByteWritter(currentAddress), usbDevice);
-                Task.Delay(400).Wait();
+                Task.Delay(50).Wait();
                 readFull = await ReadBytesReadLogger(usbDevice, currentAddress, Hexes);
 
                 if (readFull == true)
@@ -118,7 +123,7 @@ namespace TRL
 
             try
             {
-                bytesRead = await reader.LoadAsync(readPipe.EndpointDescriptor.MaxPacketSize);
+                bytesRead = await reader.LoadAsync(66);
             }
             catch (Exception e)
             {
@@ -135,11 +140,12 @@ namespace TRL
             }
             finally
             {
-               // Debug.WriteLine("Number of bytes recieved: " + bytesRead);
+                //Debug.WriteLine("Number of bytes recieved: " + bytesRead);
 
                 IBuffer buffer = reader.ReadBuffer(bytesRead);
                 readPipe.FlushBuffer();
 
+                //PrintBuffer(buffer);
                 //FTDI Error Checking
                 if ((buffer.GetByte(0) == 0x01) && (buffer.GetByte(1) == 0x60))
                 {
@@ -163,7 +169,7 @@ namespace TRL
                     //Debug.WriteLine("Invalid Reply");
                 }
             }
-
+            
             recievemsg.Add(0x0d);
             recievemsg = RemoveEscChar(recievemsg);
 
@@ -209,7 +215,6 @@ namespace TRL
                     loggerInformation.MemoryMax = new int[] { 0x353C, 0x0100, 0x0000, 0x0000, 0x8000 };    //G4
                     loggerInformation.RequestMemoryStartPointer = 3;
                     loggerInformation.RequestMemoryMaxPointer = 1;
-                    Debug.WriteLine("DONE DONE");
                     break;
             }
         }

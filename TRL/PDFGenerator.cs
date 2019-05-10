@@ -165,7 +165,7 @@ namespace TRL
             pdfDocument.Save(stream);
             pdfDocument.Close(true);
 
-            Save(stream, filename);
+            Save(loggerInformation.SerialNumber,stream, filename);
             //return true;
         }
         
@@ -453,7 +453,7 @@ namespace TRL
         }
 
         #region Helper Methods
-        public async void Save(Stream stream, string filename)
+        public async void Save(String serialNumber, Stream stream, string filename)
         {
             stream.Position = 0;
             StorageFile stFile;
@@ -461,7 +461,7 @@ namespace TRL
             {
                 FileSavePicker savePicker = new FileSavePicker();
                 savePicker.DefaultFileExtension = ".pdf";
-                savePicker.SuggestedFileName = "Output";
+                savePicker.SuggestedFileName = serialNumber;
                 savePicker.FileTypeChoices.Add("Adobe PDF Document", new List<string>() { ".pdf" });
                 stFile = await savePicker.PickSaveFileAsync();
             }

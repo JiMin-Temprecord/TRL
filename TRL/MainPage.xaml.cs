@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using Windows.UI.Xaml.Controls;
@@ -34,7 +35,9 @@ namespace TRL
             var reader = new Reader();
             var communication = new Communication();
             var loggerInformation = new LoggerInformation();
+            var stopWatch = new Stopwatch();
 
+            stopWatch.Start();
             var usbDevice = reader.FindReader();
             while (usbDevice == null)
                 usbDevice = reader.FindReader();
@@ -48,6 +51,13 @@ namespace TRL
                 pdfGenerator.CreatePDF(loggerInformation);
                 var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
             }
+            stopWatch.Stop();
+            var ts = stopWatch.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+            ts.Hours, ts.Minutes, ts.Seconds,
+            ts.Milliseconds / 10);
+
+            Debug.WriteLine("TIME : " + elapsedTime);
         }
 
         async void PDFPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)

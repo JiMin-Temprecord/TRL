@@ -240,18 +240,15 @@ namespace TRL
         {
             byte[] bytes = { };
             var addtoread = string.Empty;
-            
+            int diff = 0;
+
             for (int i = 0; i < hexStringArray.Length-1; i++)
             { 
                 string line = hexStringArray[i];
-                int diff = 0;
-
                 string address = line.Substring(0, 6);
                 string data = line.Substring(7, line.Length - 7);
                 string temp = string.Empty;
-
-                Debug.WriteLine("ADDRESS : " + address);
-
+                
                 if (Convert.ToInt32(currentinfo[0], 16) >= Convert.ToInt32(address, 16))
                     addtoread = address;
 
@@ -269,14 +266,15 @@ namespace TRL
                             if (loopOverwriteStartAddress > 0)
                                 infolength = G4MemorySize + 1;
                         }
-                        if (infolength > 58)
+                        if (infolength >= 58)
                         {
                             int readinfo = 58 - diff;
                             while (infolength > 0)
                             {
                                 temp += data.Substring(diff * 2, readinfo * 2);
-                                line = hexStringArray[i++];
-                                if (line != null)
+                                i = i+1;
+                                line = hexStringArray[i];
+                                if (line != null && line.Length != 0)
                                 {
                                     data = line.Substring(7, line.Length - 7);
                                     infolength = infolength - readinfo;
@@ -365,9 +363,8 @@ namespace TRL
 
         async Task<String> GetHexFile()
         {
-            var hexPath = Path.GetTempPath() + "\\" + serialNumber + ".hex";
-            var hexUri = new Uri("ms-appx:///Json/L0001066.hex");
-            var file = await StorageFile.GetFileFromApplicationUriAsync(hexUri);
+            var hexPath = Path.GetTempPath() + serialNumber + ".hex";
+            var file = await StorageFile.GetFileFromPathAsync(hexPath);
             return await FileIO.ReadTextAsync(file);
         }
         async Task<JObject> GetJsonObject()
@@ -713,11 +710,15 @@ namespace TRL
         }
         void DecodeDeltaData(byte[] decodeByte)
         {
+            Debug.WriteLine("DECODEBYTE : " + decodeByte.Length);
+            Debug.WriteLine("DECODEBYTE : " + decodeByte[1].ToString("X02"));
             var memoryStart = loopOverwriteStartAddress;
+            Debug.WriteLine("START : " + memoryStart.ToString("X02"));
             if (memoryStart > 0)
             {
                 memoryStart = FindStartSentinel(memoryStart - 1, 16, decodeByte);
                 memoryStart++;
+                Debug.WriteLine("STARTSentinel : " + memoryStart.ToString("X02"));
             }
             if (decodeByte.Length > 0)
             {
@@ -813,12 +814,14 @@ namespace TRL
         int FindStartSentinel(int memoryStart, int max, byte[] decodeByte)
         {
             var maxI = (memoryStart + max);
+            Debug.WriteLine("memoryStart1 : " + maxI);
 
             if (maxI > memoryStart)
             {
                 while (maxI > memoryStart)
                 {
-                    if ((decodeByte[memoryStart] == 0x7F) || (decodeByte[memoryStart] == 0xff)) //???????????????????????
+                    Debug.WriteLine("memoryStart2 : " + decodeByte[memoryStart].ToString("X02"));
+                    if ((decodeByte[memoryStart] == 0x7F) || (decodeByte[memoryStart] == 0xff)) //represents start and stop bytes
                     {
                         return memoryStart;
                     }
@@ -833,6 +836,7 @@ namespace TRL
                 {
                     if ((decodeByte[memoryStart] == 0x7f) || (decodeByte[memoryStart] & 0xff) == 0xff) // ????????
                     {
+                        Debug.WriteLine("memoryStart3 : " + memoryStart);
                         return memoryStart;
                     }
                     memoryStart++;
@@ -961,7 +965,7 @@ namespace TRL
                 {
                     var sensorData = sensorInfoArray[20] << 16 | sensorInfoArray[19] << 8 | sensorInfoArray[18];
 
-                    if (sensorType[i] == 0 || sensorType[i] == 6) // get yasiru to explain why
+                    if (sensorType[i] == 0 || sensorType[i] == 6) //Temperature Sensors
                     {
                         sensorStartingValue[i] = Kelvin - sensorData;
                     }
