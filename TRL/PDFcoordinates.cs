@@ -6,8 +6,8 @@
         public static readonly int partitionXend = 680;
 
         public static readonly int first_column = 20;
-        public static readonly int second_column = 275;
-        public static readonly int third_column = 530;
+        public static readonly int second_column = 215;
+        public static readonly int third_column = 470;
 
         public static readonly int line_counter = 80;
         public static readonly int line_inc = 17;
@@ -31,8 +31,8 @@
         public static readonly int line3_endX = 690;
         public static readonly int line3_endY = 567;
 
-        public static readonly int box1_X1 = 490;
-        public static readonly int box1_X2 = 690;
+        public static readonly int box1_X1 = 470;
+        public static readonly int box1_X2 = 670;
         public static readonly int box1_Y1 = 100;
         public static readonly int box1_Y2 = 226;
 

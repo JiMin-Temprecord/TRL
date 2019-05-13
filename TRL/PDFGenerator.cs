@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using TRL.Constant;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -18,7 +19,7 @@ namespace TRL
         string path = Windows.ApplicationModel.Package.Current.InstalledLocation + "\\Images\\";
         int pageNumber = 0;
         
-        public async void CreatePDF(LoggerInformation loggerInformation)
+        public async Task<bool> CreatePDF(LoggerInformation loggerInformation)
         {
             var decoder = new HexFileDecoder(loggerInformation);
             await decoder.ReadIntoJsonFileAndSetupDecoder();
@@ -33,8 +34,8 @@ namespace TRL
             var font = new PdfStandardFont(PdfFontFamily.Courier, 11, PdfFontStyle.Regular);
             var boldFont = new PdfStandardFont(PdfFontFamily.Courier, 11, PdfFontStyle.Bold);
 
-            //if (loggerVariables.LoggerState == "Ready" || loggerVariables.LoggerState == "Delay")
-                //return false;
+            if (loggerVariables.LoggerState == "Ready" || loggerVariables.LoggerState == "Delay")
+                return false;
             
             var newPage = CreateNewPage(font, loggerInformation.SerialNumber);
             var pdfPage = newPage.Graphics;
@@ -166,7 +167,7 @@ namespace TRL
             pdfDocument.Close(true);
 
             Save(loggerInformation.SerialNumber,stream, filename);
-            //return true;
+            return true;
         }
         
         void DrawGraph(HexFileDecoder decoder, LoggerVariables pdfVariables, PdfGraphics draw, PdfPen pen, PdfFont font)
@@ -442,7 +443,7 @@ namespace TRL
             var draw = page.Graphics;
             draw.DrawString(LabelConstant.Title, serialfont, PdfBrushes.Blue, 10, 50);
             draw.DrawString(LabelConstant.SerialNumber+ serialNumber, serialfont, PdfBrushes.Blue, 550, 50);
-            draw.DrawLine(serialPen, 10, 60, 690, 60);
+            draw.DrawLine(serialPen, 10, 70, 690, 70);
             draw.DrawString(LabelConstant.Page + pageNumber , font, PdfBrushes.Black, 600, 980);
             draw.DrawString(LabelConstant.Website, font, PdfBrushes.Black, PDFcoordinates.siteX, PDFcoordinates.siteY);
             draw.DrawString(DateTime.UtcNow.ToString("dd/MM/yyy HH:mm:sss UTC"), font, PdfBrushes.Black, PDFcoordinates.dateX, PDFcoordinates.dateY);

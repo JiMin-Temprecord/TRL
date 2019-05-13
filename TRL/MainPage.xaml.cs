@@ -48,8 +48,13 @@ namespace TRL
             if (!errorDectected)
             {
                 var pdfGenerator = new PDFGenerator();
-                pdfGenerator.CreatePDF(loggerInformation);
-                var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
+                var isData = await pdfGenerator.CreatePDF(loggerInformation);
+                if (isData)
+                {
+                    var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
+                }
+                else
+                    Debug.WriteLine("LOGGER IS IN ERROR/READY STATE");
             }
             stopWatch.Stop();
             var ts = stopWatch.Elapsed;

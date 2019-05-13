@@ -66,13 +66,13 @@ namespace TRL
             
             recoverCount = 0;
             WriteBytes(new WakeUpByteWritter(), usbDevice);
-            Task.Delay(50).Wait();
+            Task.Delay(400).Wait();
             var currentAddress = await ReadBytesWakeUp(usbDevice, loggerInformation, recievemsg, Hexes);
 
             Debug.WriteLine(loggerInformation.LoggerType);
 
             WriteBytes(new SetReadByteWritter(loggerInformation.LoggerType), usbDevice);
-            Task.Delay(50).Wait(); // can never be 100
+            Task.Delay(67).Wait(); // can never be 100
             await  ReadBytesSetRead(usbDevice, currentAddress, loggerInformation, Hexes);
 
             while (ReaderAvailable && currentAddress != null && (currentAddress.MemoryNumber <= loggerInformation.MaxMemory))
@@ -85,9 +85,9 @@ namespace TRL
                     currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
                     currentAddress.LengthLSB = (byte)(length & 0xff);
                 }
-
+                
                 WriteBytes(new ReadLoggerByteWritter(currentAddress), usbDevice);
-                Task.Delay(50).Wait();
+                Task.Delay(67).Wait();
                 readFull = await ReadBytesReadLogger(usbDevice, currentAddress, Hexes);
 
                 if (readFull == true)
@@ -123,7 +123,7 @@ namespace TRL
 
             try
             {
-                bytesRead = await reader.LoadAsync(66);
+                bytesRead = await reader.LoadAsync(67);
             }
             catch (Exception e)
             {
@@ -289,7 +289,7 @@ namespace TRL
             length = maxlenreading;
             var msg = await ReadBytes(usbDevice);
             var addressRead = "0" + currentAddress.MemoryNumber + currentAddress.MemoryAddMSB.ToString("x02") + currentAddress.MemoryAddLSB.ToString("x02");
-
+            
             if ((recievemsg.Count > 8) && (recievemsg[0] == 0x00))
             {
                 var finalmsg = string.Empty;
@@ -304,6 +304,10 @@ namespace TRL
                     finalmsg = msg.ToString(2, msg.Length - 8);
 
                 Hexes.Add(new Hex(addressRead, finalmsg));
+            }
+            else if (recievemsg.Count < 8)
+            {
+                return false;
             }
 
             currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
