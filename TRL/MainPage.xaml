@@ -6,19 +6,85 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" ManipulationMode="System">
 
-    <Grid HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" FocusVisualSecondaryBrush="#E5FFFFFF">
-        <Button x:Name="PDFPreview" Content="" HorizontalAlignment="Left" Height="450" Margin="50,50,0,0" VerticalAlignment="Top" Width="450" FontSize="36" FontFamily="Myriad Pro" FontWeight="Bold" RenderTransformOrigin="0.5,0.5" Click="PDFPreview_Click" Tapped="PDFPreview_Tapped">
+    <Grid Margin="450,0,450,0" FocusVisualSecondaryBrush="#E5FFFFFF" Loaded="Grid_Loaded">
+        <Button x:Name="PDFPreview" Content="" HorizontalAlignment="left" Height="256" Margin="250,0,0,0" VerticalAlignment="Center" Width="256" FontSize="36" FontFamily="Myriad Pro" FontWeight="Bold" RenderTransformOrigin="0.5,0.5" Click="PDFPreview_Click" Tapped="PDFPreview_Tapped" FocusVisualPrimaryBrush="{x:Null}" RequestedTheme="Default">
+            <Button.Foreground>
+                <ImageBrush ImageSource="/Resources/pdf.png" Stretch="UniformToFill"/>
+            </Button.Foreground>
+            <Button.FocusVisualSecondaryBrush>
+                <ImageBrush ImageSource="/Resources/pdf.png" Stretch="UniformToFill"/>
+            </Button.FocusVisualSecondaryBrush>
             <Button.Background>
                 <ImageBrush ImageSource="/Resources/TempLite-02.png" Stretch="None"/>
             </Button.Background>
         </Button>
-        <Button x:Name="ExcelPreview" Content="" HorizontalAlignment="Left" Height="450" Margin="50,550,0,0" VerticalAlignment="Top" Width="450" FontFamily="Myriad Pro" FontSize="36" Click="ExcelPreview_Click" Tapped="ExcelPreview_Tapped">
+        <Button x:Name="ExcelPreview" Content="" HorizontalAlignment="Left" Height="254" Margin="550,0,0,0" VerticalAlignment="Center" Width="254" FontFamily="Myriad Pro" FontSize="36" Click="ExcelPreview_Click" Tapped="ExcelPreview_Tapped" FocusVisualPrimaryBrush="{x:Null}" Foreground="{x:Null}" IsHoldingEnabled="False" IsRightTapEnabled="False">
+            <Button.FocusVisualSecondaryBrush>
+                <ImageBrush ImageSource="/Resources/TempLite-05.png" Stretch="UniformToFill"/>
+            </Button.FocusVisualSecondaryBrush>
             <Button.Background>
-                <ImageBrush ImageSource="/Resources/TempLite-05.png" Stretch="None"/>
+                <ImageBrush ImageSource="/Resources/TempLite-05.png" Stretch="UniformToFill"/>
             </Button.Background>
         </Button>
-
+        <StackPanel x:Name="ReaderPanel" HorizontalAlignment="Center" Height="850" Margin="0,50,0,0" VerticalAlignment="Top" Width="900" Background="White">
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="600" Height="1000">
+                <Image HorizontalAlignment="Left" Height="662" Margin="5,0,0,0" Width="585" Source="/Resources/product-04.png" Stretch="Uniform" VerticalAlignment="Stretch"/>
+                <TextBlock HorizontalAlignment="Left" Height="34" Margin="5,0,0,0" Text="Connect Reader" TextWrapping="Wrap" Width="525" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" VerticalAlignment="Stretch"/>
+                <TextBox HorizontalAlignment="Center" Height="100" Text="Connect a Temprecord Reader to your computer" Width="600" FontFamily="Segoe UI" FontWeight="Normal" FontSize="18" BorderThickness="0,0,0,0" IsReadOnly="True" Foreground="#FF3E3C3C" SelectionHighlightColor="#FF003399" VerticalAlignment="Stretch"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="LoggerPanel" HorizontalAlignment="center" Height="850" Margin="0,50,0,0" VerticalAlignment="Top" Width="900" Visibility="Collapsed">
+            <StackPanel.Background>
+                <AcrylicBrush/>
+            </StackPanel.Background>
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="600" Height="1000">
+                <Image HorizontalAlignment="Left" Height="662" Margin="5,0,0,0" Width="585" Source="/Resources/logger-01.png" Stretch="Uniform" VerticalAlignment="Stretch"/>
+                <TextBlock HorizontalAlignment="Left" Height="34" Margin="5,0,0,0" Text="Insert Logger" TextWrapping="Wrap" Width="525" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" VerticalAlignment="Stretch"/>
+                <TextBox HorizontalAlignment="Center" TextWrapping="Wrap"  Height="100" Text="Insert a G4 or MonT logger into the reader. Reading should start automically" Width="600" FontFamily="Segoe UI" FontWeight="Normal" FontSize="18" BorderThickness="0,0,0,0" IsReadOnly="True" Foreground="#FF3E3C3C" SelectionHighlightColor="#FF003399" VerticalAlignment="Stretch"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="ReadingLoggerPanel" HorizontalAlignment="Center" Height="225" Margin="0,400,0,0" VerticalAlignment="Top" Width="450" BorderThickness="2,2,2,2" BorderBrush="#FF707070" FocusVisualPrimaryBrush="#FF474747" Visibility="Collapsed">
+            <StackPanel.Background>
+                <AcrylicBrush/>
+            </StackPanel.Background>
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="450" Height="150" Margin="0,50,0,0" VerticalAlignment="Stretch">
+                <TextBlock HorizontalAlignment="Center" Height="40" Text="Reading Logger" TextWrapping="Wrap" Width="594" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" TextAlignment="Center" VerticalAlignment="Stretch"/>
+                <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" Height="70" Text="Do not unplug the reader or remove the logger" Width="270" FontFamily="Segoe UI" FontWeight="Normal" FontSize="18" BorderThickness="0,0,0,0" IsReadOnly="True" Foreground="#FF3E3C3C" SelectionHighlightColor="#FF003399" Background="{x:Null}" Margin="0,0,0,0"/>
+                <ProgressBar x:Name="ReadingLoggerProgressBar" Height="20" VerticalAlignment="Stretch" Margin="100,0,85,0" IsIndeterminate="True" Foreground="#FF003399" Value="30"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="ReadyStateErrorPanel" HorizontalAlignment="Center" Height="465" Margin="0,160,0,0" VerticalAlignment="Top" Width="500" Background="White" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="650" Height="600">
+                <Image HorizontalAlignment="Center" Height="300" Margin="5,0,0,0" Width="550" Source="/Images/errorWarning.png" Stretch="Uniform"/>
+                <TextBlock HorizontalAlignment="Center" Height="34" Margin="5,0,0,0" Text="No Data Available" TextWrapping="Wrap" Width="525" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" VerticalAlignment="Stretch" TextAlignment="Center"/>
+                <TextBox HorizontalAlignment="Center" TextWrapping="Wrap"  Height="60" Text="Logger is in Ready State or Start Delay. There is no data available." Width="300" FontFamily="Segoe UI" FontWeight="Normal" FontSize="18" BorderThickness="0,0,0,0" IsReadOnly="True" Foreground="#FF3E3C3C" SelectionHighlightColor="#FF003399" TextAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Stretch" Background="{x:Null}"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="ErrorReadingPanel" HorizontalAlignment="Center" Height="465" Margin="0,160,0,0" VerticalAlignment="Top" Width="500" Background="White" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="650" Height="600">
+                <Image HorizontalAlignment="Center" Height="300" Width="400" Source="/Images/errorWarning.png" Stretch="Uniform" VerticalAlignment="Stretch"/>
+                <TextBlock HorizontalAlignment="Center" Height="34" Text="Error" TextWrapping="Wrap" Width="279" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" TextAlignment="Left"/>
+                <TextBox HorizontalAlignment="Center" TextWrapping="Wrap"  Height="90" Text="Please make sure that the logger is placed fully inside the reader and check that the battery isnt flat" Width="300" FontFamily="Segoe UI" FontWeight="Normal" FontSize="18" BorderThickness="0,0,0,0" IsReadOnly="True" Foreground="#FF3E3C3C" SelectionHighlightColor="#FF003399"  Margin="0,10,0,0" TextAlignment="Left"  Background="{x:Null}"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="SendingEmailPanel" HorizontalAlignment="Center" Height="350" Margin="0,250,0,0" VerticalAlignment="Top" Width="450" BorderThickness="2,2,2,2" BorderBrush="#FF707070" FocusVisualPrimaryBrush="#FF474747" Visibility="Collapsed">
+            <StackPanel.Background>
+                <ImageBrush ImageSource="/Resources/email.png" Stretch="UniformToFill"/>
+            </StackPanel.Background>
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="450" Height="270" Margin="0,50,0,0" VerticalAlignment="Stretch">
+                <TextBlock HorizontalAlignment="Center" Height="40" Text="Sending Email" TextWrapping="Wrap" Width="594" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" TextAlignment="Center" VerticalAlignment="Stretch"/>
+                <ProgressBar x:Name="SendingEmailProgressBar" Height="20" VerticalAlignment="Stretch" Margin="100,200,85,0" IsIndeterminate="True" Foreground="#FF003399" Value="30" HorizontalAlignment="Stretch"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="SentEmailPanel" HorizontalAlignment="Center" Height="350" Margin="0,250,0,0" VerticalAlignment="Top" Width="450" BorderThickness="2,2,2,2" BorderBrush="#FF707070" FocusVisualPrimaryBrush="#FF474747" Visibility="Collapsed">
+            <StackPanel.Background>
+                <ImageBrush ImageSource="/Resources/emailSuccess.png" Stretch="UniformToFill"/>
+            </StackPanel.Background>
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="450" Height="270" Margin="0,50,0,0" VerticalAlignment="Stretch">
+                <TextBlock HorizontalAlignment="Center" Height="40" Text="Sent Email" TextWrapping="Wrap" Width="594" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" TextAlignment="Center" VerticalAlignment="Stretch"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Page>

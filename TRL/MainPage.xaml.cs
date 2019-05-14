@@ -32,37 +32,7 @@ namespace TRL
 
         async void PDFPreview_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            var reader = new Reader();
-            var communication = new Communication();
-            var loggerInformation = new LoggerInformation();
-            var stopWatch = new Stopwatch();
-
-            stopWatch.Start();
-            var usbDevice = reader.FindReader();
-            while (usbDevice == null)
-                usbDevice = reader.FindReader();
-
-            await communication.FindLogger(usbDevice);
-            var errorDectected = await communication.GenerateHexFile(usbDevice, loggerInformation);
-
-            if (!errorDectected)
-            {
-                var pdfGenerator = new PDFGenerator();
-                var isData = await pdfGenerator.CreatePDF(loggerInformation);
-                if (isData)
-                {
-                    var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
-                }
-                else
-                    Debug.WriteLine("LOGGER IS IN ERROR/READY STATE");
-            }
-            stopWatch.Stop();
-            var ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-            ts.Hours, ts.Minutes, ts.Seconds,
-            ts.Milliseconds / 10);
-
-            Debug.WriteLine("TIME : " + elapsedTime);
+                
         }
 
         async void PDFPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
@@ -83,6 +53,44 @@ namespace TRL
             excelGenerator.CreateExcelAsync(loggerInformation);
 
             var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".xlsx";
+        }
+
+        private async void Grid_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            var reader = new Reader();
+            var communication = new Communication();
+            var loggerInformation = new LoggerInformation();
+            var stopWatch = new Stopwatch();
+
+            ReaderPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            var usbDevice = reader.FindReader();
+            while (usbDevice == null)
+                usbDevice = reader.FindReader();
+            ReaderPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
+            LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            await communication.FindLogger(usbDevice);
+            
+            ReadingLoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            var errorDectected = await communication.GenerateHexFile(usbDevice, loggerInformation);
+            ReadingLoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
+            if (errorDectected)
+            {
+                ErrorReadingPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            }
+            else
+            {
+                LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                var pdfGenerator = new PDFGenerator();
+                var isData = await pdfGenerator.CreatePDF(loggerInformation);
+                if (isData)
+                {
+                    var filePath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".pdf";
+                }
+                else
+                    Debug.WriteLine("LOGGER IS IN ERROR//READY STATE");
+            }
         }
     }
 }
