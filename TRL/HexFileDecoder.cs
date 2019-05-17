@@ -74,7 +74,6 @@ namespace TRL
         readonly LoggerInformation loggerInformation;
         readonly string serialNumber;
         readonly string jsonFile;
-        readonly StorageFolder path = Windows.ApplicationModel.Package.Current.InstalledLocation;
 
         public HexFileDecoder(LoggerInformation loggerInformation)
         {
@@ -167,7 +166,7 @@ namespace TRL
             loggerVariable.UserData = userData.Substring(0, userDataLength);
 
             loggerInformation.EmailId = emailID;
-
+            Debug.WriteLine("EMail : " + loggerInformation.EmailId);
             if (batteryPercentage == "255%")
             {
                 loggerVariable.BatteryPercentage = "100%";

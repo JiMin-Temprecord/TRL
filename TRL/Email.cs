@@ -1,5 +1,8 @@
 ﻿using MimeKit;
 using System.IO;
+using System;
+using Windows.Storage;
+using System.Threading.Tasks;
 
 namespace TRL
 {
@@ -37,33 +40,34 @@ namespace TRL
             }
         }
 
-        public void OpenEmailApplication (string serialNumber, string emailID, int file = 2)
+        public async Task OpenEmailApplication(string serialNumber, int file = 2)
         {
-            /*var PDF = Path.GetTempPath() + serialNumber + ".pdf";
-            var EXCEL = Path.GetTempPath() + serialNumber + ".xlsx";
+            var pdfPath = Path.GetTempPath() + serialNumber + ".hex";
+            var excelPath = Path.GetTempPath() + serialNumber + ".hex";
             var emailSubject = "Temprecord Logger " + serialNumber;
-            
-            try
+
+            var pdfFile = await StorageFile.GetFileFromPathAsync(pdfPath);
+            var pdfStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(pdfFile);
+            var pdfAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".hex", pdfStream);
+
+            var excelFile = await StorageFile.GetFileFromPathAsync(excelPath);
+            var excelStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(excelFile);
+            var excelAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".hex", excelStream);
+
+            var emailMessage = new Windows.ApplicationModel.Email.EmailMessage();
+            emailMessage.Subject = emailSubject;
+
+            if (file == 0)
+                emailMessage.Attachments.Add(pdfAttachment);
+            else if (file == 1)
+                emailMessage.Attachments.Add(excelAttachment);
+            else
             {
-                var outlookApp = new Application();
-                var outlookMail = outlookApp.CreateItem(OlItemType.olMailItem);
-                outlookMail.Subject = emailSubject;
-                
-                if(file == 0)
-                    outlookMail.Attachments.Add(PDF);
-                else if(file == 1)
-                    outlookMail.Attachments.Add(EXCEL);
-                else
-                {
-                    outlookMail.Attachments.Add(PDF);
-                    outlookMail.Attachments.Add(EXCEL);
-                }
-                outlookMail.Display(true);
+                emailMessage.Attachments.Add(pdfAttachment);
+                emailMessage.Attachments.Add(excelAttachment);
             }
-            catch
-            {
-                MessageBox.Show("Unable to Detect Outlook. Please download Outlook and try again.");
-            }*/
+
+            await Windows.ApplicationModel.Email.EmailManager.ShowComposeNewEmailAsync(emailMessage);
         }
 
         string GetSenderEmail (string emailID)

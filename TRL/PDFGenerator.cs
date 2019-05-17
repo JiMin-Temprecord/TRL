@@ -3,7 +3,6 @@ using Syncfusion.Pdf.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using TRL.Constant;
 using Windows.Storage;

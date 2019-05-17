@@ -19,7 +19,7 @@ namespace TRL
         readonly int maxlenreading = 58;
         List<byte> recievemsg;
 
-        public async Task<StringBuilder> FindLogger(UsbDevice usbDevice)
+        public async Task FindLogger(UsbDevice usbDevice)
         {
             var msg = new StringBuilder();
 
@@ -36,8 +36,6 @@ namespace TRL
                     System.Threading.Thread.Sleep(1000);
                 }
             }
-
-            return msg;
         }
         public async Task<bool> GenerateHexFile(UsbDevice usbDevice, LoggerInformation loggerInformation)
         {
@@ -72,7 +70,7 @@ namespace TRL
             Debug.WriteLine(loggerInformation.LoggerType);
 
             WriteBytes(new SetReadByteWritter(loggerInformation.LoggerType), usbDevice);
-            Task.Delay(67).Wait(); // can never be 100
+            Task.Delay(65).Wait(); // can never be 100
             await  ReadBytesSetRead(usbDevice, currentAddress, loggerInformation, Hexes);
 
             while (ReaderAvailable && currentAddress != null && (currentAddress.MemoryNumber <= loggerInformation.MaxMemory))
@@ -87,7 +85,7 @@ namespace TRL
                 }
                 
                 WriteBytes(new ReadLoggerByteWritter(currentAddress), usbDevice);
-                Task.Delay(67).Wait();
+                Task.Delay(65).Wait();
                 readFull = await ReadBytesReadLogger(usbDevice, currentAddress, Hexes);
 
                 if (readFull == true)
@@ -123,7 +121,12 @@ namespace TRL
 
             try
             {
-                bytesRead = await reader.LoadAsync(67);
+
+                bytesRead = await reader.LoadAsync(65);
+            }
+            catch (System.AccessViolationException exception)
+            {
+                Debug.WriteLine(exception);
             }
             catch (Exception e)
             {
