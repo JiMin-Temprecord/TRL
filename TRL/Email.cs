@@ -20,7 +20,7 @@ namespace TRL
             message.Subject = emailSubject;
             
             var PDF = Path.GetTempPath() + serialNumber + ".pdf";
-            var EXCEL = Path.GetTempPath() + serialNumber + ".xlsx";
+            var EXCEL = Path.GetTempPath() + serialNumber + ".csv";
 
             if (File.Exists(PDF) && (File.Exists(EXCEL)))
             {
@@ -42,27 +42,38 @@ namespace TRL
 
         public async Task OpenEmailApplication(string serialNumber, int file = 2)
         {
-            var pdfPath = Path.GetTempPath() + serialNumber + ".hex";
-            var excelPath = Path.GetTempPath() + serialNumber + ".hex";
             var emailSubject = "Temprecord Logger " + serialNumber;
-
-            var pdfFile = await StorageFile.GetFileFromPathAsync(pdfPath);
-            var pdfStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(pdfFile);
-            var pdfAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".hex", pdfStream);
-
-            var excelFile = await StorageFile.GetFileFromPathAsync(excelPath);
-            var excelStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(excelFile);
-            var excelAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".hex", excelStream);
-
             var emailMessage = new Windows.ApplicationModel.Email.EmailMessage();
             emailMessage.Subject = emailSubject;
 
             if (file == 0)
+            {
+                var pdfPath = Path.GetTempPath() + serialNumber + ".pdf";
+                var pdfFile = await StorageFile.GetFileFromPathAsync(pdfPath);
+                var pdfStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(pdfFile);
+                var pdfAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".pdf", pdfStream);
                 emailMessage.Attachments.Add(pdfAttachment);
+            }
             else if (file == 1)
+            {
+                var excelPath = Path.GetTempPath() + serialNumber + ".csv";
+                var excelFile = await StorageFile.GetFileFromPathAsync(excelPath);
+                var excelStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(excelFile);
+                var excelAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".csv", excelStream);
                 emailMessage.Attachments.Add(excelAttachment);
+            }
             else
             {
+                var pdfPath = Path.GetTempPath() + serialNumber + ".pdf";
+                var pdfFile = await StorageFile.GetFileFromPathAsync(pdfPath);
+                var pdfStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(pdfFile);
+                var pdfAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".pdf", pdfStream);
+
+                var excelPath = Path.GetTempPath() + serialNumber + ".csv";
+                var excelFile = await StorageFile.GetFileFromPathAsync(excelPath);
+                var excelStream = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromFile(excelFile);
+                var excelAttachment = new Windows.ApplicationModel.Email.EmailAttachment(serialNumber + ".csv", excelStream);
+
                 emailMessage.Attachments.Add(pdfAttachment);
                 emailMessage.Attachments.Add(excelAttachment);
             }

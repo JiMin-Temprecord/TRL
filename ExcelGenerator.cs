@@ -1,13 +1,11 @@
 ﻿using Syncfusion.XlsIO;
-using Windows.Storage.Pickers;
-using Windows.Storage;
-using Windows.UI;
-using TRL.Constant;
-using System.IO;
-using Windows.System;
 using System;
-using System.Reflection;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using TRL.Constant;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace TRL
 {
@@ -36,10 +34,10 @@ namespace TRL
                 savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
                 savePicker.SuggestedFileName = loggerInformation.SerialNumber;
                 savePicker.FileTypeChoices.Add("Excel Files", new List<string>() { ".xlsx" });
-                StorageFile storageFile = await savePicker.PickSaveFileAsync();
+                //StorageFile storageFile = await savePicker.PickSaveFileAsync();
 
-                await workbook.SaveAsAsync(storageFile);
-                await Launcher.LaunchFileAsync(storageFile);
+                //await workbook.SaveAsAsync(storageFile);
+                //await Launcher.LaunchFileAsync(storageFile);
                 //Console.WriteLine("EXCEL Created !");
             }
         }

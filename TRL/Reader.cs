@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Usb;
 using Windows.Foundation;
@@ -14,25 +13,65 @@ namespace TRL
         uint READER_PID1 = 0xD468;
         uint READER_PID2 = 0x6015;
 
+        bool usbExist = false;
+        bool goingones = false;
+
         UsbDevice usbDevice = null;
+        UsbSetupPacket setupPacket = null;
+        DeviceWatcher deviceWatcher = null;
+        DeviceWatcher TempReader1Watcher = null;
+        DeviceWatcher TempReader2Watcher = null;
+        DeviceWatcher TempReader3Watcher = null;
 
         #region FindReader
         public UsbDevice FindReader()
         {
-            InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID);
-            InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID1);
-            InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID2);
-            
+            if (goingones == false)
+            {
+                goingones = true;
+
+                InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID);
+
+                InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID1);
+
+                InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID2);
+            }
+
             return usbDevice;
         }
         void InitializeTemprecordReaderDeviceWatcher(uint VID, uint PID)
         {
-            var ReaderSelector = UsbDevice.GetDeviceSelector(VID, PID);
-            var deviceWatcher = DeviceInformation.CreateWatcher(ReaderSelector);
 
-            AddDeviceWatcher(deviceWatcher);
-            deviceWatcher.Start();
+            switch (PID)
+            {
+                case 0xD469:
+                    var ReaderSelector1 = UsbDevice.GetDeviceSelector(VID, PID);
+
+                    TempReader1Watcher = DeviceInformation.CreateWatcher(ReaderSelector1);
+
+                    AddDeviceWatcher(TempReader1Watcher);
+                    TempReader1Watcher.Start();
+                    break;
+                case 0xD468:
+                    var ReaderSelector2 = UsbDevice.GetDeviceSelector(VID, PID);
+
+                    TempReader2Watcher = DeviceInformation.CreateWatcher(ReaderSelector2);
+
+                    AddDeviceWatcher(TempReader2Watcher);
+                    TempReader2Watcher.Start();
+                    break;
+                case 0x6015:
+                    var ReaderSelector = UsbDevice.GetDeviceSelector(VID, PID);
+                    TempReader3Watcher = DeviceInformation.CreateWatcher(ReaderSelector);
+
+                    AddDeviceWatcher(TempReader3Watcher);
+                    TempReader3Watcher.Start();
+                    break;
+
+
+            }
         }
+
         void AddDeviceWatcher(DeviceWatcher deviceWatcher)
         {
             deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>(this.OnDeviceAdded);
@@ -40,27 +79,44 @@ namespace TRL
         }
         void OnDeviceAdded(DeviceWatcher sender, DeviceInformation deviceInformation)
         {
-            Debug.WriteLine(deviceInformation.Id + " was found.");
+            //Debug.WriteLine(deviceInformation.Id + " was found. ");
+            setupPacket = null;
+            usbExist = true;
+
+
             SetupFTDI(deviceInformation.Id);
         }
+
         void OnDeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate deviceInformationUpdate)
         {
-            Debug.WriteLine(deviceInformationUpdate.Id + " was removed.");
+            //Debug.WriteLine(deviceInformationUpdate.Id + " was removed. ");
+            TempReader1Watcher.Stop();
+            TempReader2Watcher.Stop();
+            TempReader3Watcher.Stop();
+
+            usbDevice = null;
+            goingones = false;
+            usbExist = false;
+            
         }
+
+        public UsbDevice GetUSBDevice()
+        {
+
+            return usbDevice;
+        }
+
         async void SetupFTDI(String deviceID)
         {
             try
             {
-                Debug.WriteLine("Opened Device for Communication.");
-                var temp = await UsbDevice.FromIdAsync(deviceID);
-                if (temp != null)
-                    usbDevice = temp;
-                //var ftdiInfo = new FTDIInfo(usbDevice, deviceID);
+                //Debug.WriteLine("Opened Device for Communication.");
+                usbDevice = await UsbDevice.FromIdAsync(deviceID);
             }
 
             catch (Exception exception)
             {
-                Debug.WriteLine(exception.Message.ToString());
+                //Debug.WriteLine("USB READER : " + exception.Message.ToString());
             }
 
             finally
@@ -68,7 +124,7 @@ namespace TRL
                 if (usbDevice != null)
                 {
                     //This set up the 8-bit, no parity bit, one stop bit .... usb comms
-                    var setupPacket = new UsbSetupPacket
+                    setupPacket = new UsbSetupPacket
                     {
                         RequestType = new UsbControlRequestType
                         {
@@ -81,7 +137,7 @@ namespace TRL
                         Length = 0
                     };
                     UInt32 FTDI_init = await usbDevice.SendControlOutTransferAsync(setupPacket);//.controlTransfer(0x40, 0x03, 0x809C, 0x0000, null, 0, 0);
-                    Debug.WriteLine("F.T.D.I Initialized !");
+                    //Debug.WriteLine("F.T.D.I Initialized !");
 
                     //Need to send a second set for the reader with the transparent cable to work. This wakes up the FTDI chip in it
                     setupPacket = new UsbSetupPacket
@@ -97,10 +153,12 @@ namespace TRL
                         Length = 0
                     };
                     UInt32 bytesTransferred = await usbDevice.SendControlOutTransferAsync(setupPacket);//.controlTransfer(0x40, 0x01, 0x0101, 0x0000, null, 0, 0);
-                    Debug.WriteLine("FTDI Wakeup (For the Transparent Cable Logger)");
+                    //Debug.WriteLine("FTDI Wakeup (For the Transparent Cable Logger)");
                 }
             }
         }
         #endregion
+
+        public bool UsbExist { get { return usbExist; } set { usbExist = value; } }
     }
 }

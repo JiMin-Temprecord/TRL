@@ -128,7 +128,7 @@
     <Compile Include="Constant\DecodeConstant.cs" />
     <Compile Include="Constant\LabelConstant.cs" />
     <Compile Include="Email.cs" />
-    <Compile Include="ExcelGenerator.cs" />
+    <Compile Include="CSVGenerator.cs" />
     <Compile Include="FTDIinfo.cs" />
     <Compile Include="Hex.cs" />
     <Compile Include="HexFileDecoder.cs" />
@@ -147,12 +147,53 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="Assets\LargeTile.scale-100.png" />
+    <Content Include="Assets\LargeTile.scale-125.png" />
+    <Content Include="Assets\LargeTile.scale-150.png" />
+    <Content Include="Assets\LargeTile.scale-200.png" />
+    <Content Include="Assets\LargeTile.scale-400.png" />
+    <Content Include="Assets\logo.scale-100.png" />
+    <Content Include="Assets\logo.scale-125.png" />
+    <Content Include="Assets\logo.scale-150.png" />
+    <Content Include="Assets\logo.scale-200.png" />
+    <Content Include="Assets\logo.scale-400.png" />
+    <Content Include="Assets\SplashScreen.scale-100.png" />
+    <Content Include="Assets\SplashScreen.scale-125.png" />
+    <Content Include="Assets\SplashScreen.scale-150.png" />
+    <Content Include="Assets\SplashScreen.scale-400.png" />
+    <Content Include="Assets\Square150x150Logo.scale-100.png" />
+    <Content Include="Assets\Square150x150Logo.scale-125.png" />
+    <Content Include="Assets\Square150x150Logo.scale-150.png" />
+    <Content Include="Assets\Square150x150Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-256.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.altform-unplated_targetsize-48.png" />
+    <Content Include="Assets\Square44x44Logo.scale-100.png" />
+    <Content Include="Assets\Square44x44Logo.scale-125.png" />
+    <Content Include="Assets\Square44x44Logo.scale-150.png" />
+    <Content Include="Assets\Square44x44Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-16.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-256.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-32.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-48.png" />
+    <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\StoreLogo.scale-125.png" />
+    <Content Include="Assets\StoreLogo.scale-150.png" />
+    <Content Include="Assets\StoreLogo.scale-200.png" />
+    <Content Include="Assets\StoreLogo.scale-400.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-100.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-125.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-150.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <Content Include="Json\G4.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Json\MonT.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\roboto_medium.ttf" />
     <None Include="TRL_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -166,14 +207,14 @@
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Resources\email.png" />
     <Content Include="Resources\emailSuccess.png" />
     <Content Include="Resources\excel.png" />
     <Content Include="Resources\greentick.png" />
     <Content Include="Resources\logger-01.png" />
-    <Content Include="Resources\logo.png" />
+    <Content Include="Resources\logo.scale-200.png" />
+    <Content Include="Resources\logo.scale-400.png" />
     <Content Include="Resources\pdf.png" />
     <Content Include="Resources\product-04.png" />
     <Content Include="Resources\redwarning.png" />
@@ -197,7 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MailKit">
-      <Version>2.1.4</Version>
+      <Version>2.1.5.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.8</Version>
@@ -205,17 +246,18 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>
     </PackageReference>
-    <PackageReference Include="Syncfusion.Pdf.UWP">
-      <Version>17.1.0.41</Version>
-    </PackageReference>
     <PackageReference Include="Syncfusion.XlsIO.UWP">
       <Version>17.1.0.41</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\" />
     <Folder Include="System\Threading\" />
-    <Folder Include="UserControl\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PDF\PDF\PDF.csproj">
+      <Project>{02f46c43-7e35-415c-af00-1db3984ed09a}</Project>
+      <Name>PDF</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

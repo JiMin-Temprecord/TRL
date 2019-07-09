@@ -227,7 +227,9 @@ namespace TRL
                     Channel.Unit = DecodeConstant.Farenhiet;
 
                 else
-                    Channel.Unit = DecodeConstant.Celcius;
+                {
+                    Channel.Unit = Char.ConvertFromUtf32(0xb0) + DecodeConstant.Celcius; //Char.ConvertFromUtf32(0xEB)
+                }
             }
             else
             {
@@ -981,7 +983,12 @@ namespace TRL
             for (int i = 0; i < decodeByte.Length; i++)
             {
                 if (decodeByte[i] > 12 && decodeByte[i] < 127)
+                {
+                    if (decodeByte[i] == 13)
+                        decodeByte[i] = 32;
+
                     UserDataString += Convert.ToChar(decodeByte[i]);
+                }
             }
 
             return UserDataString;
