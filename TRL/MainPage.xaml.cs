@@ -110,15 +110,16 @@ namespace TRL
 
                 //Generating Documents
                 case 3:
-                    LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     ReadingLoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     if (errorDectected)
                     {
+                        LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                         ErrorReadingPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         ReadLoggerButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     }
                     else if (!reader.UsbExist)
                     {
+                        LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                         ReaderPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         usbDevice.Dispose();
                         ApplicationProcess(0);
@@ -132,7 +133,6 @@ namespace TRL
                         loggerHasStarted = await pdfGenerator.CreatePDF(loggerInformation);
                         if (loggerHasStarted)
                             excelGenerator.CreateCSV(loggerInformation);
-
                         ApplicationProcess(4);
                     }
                     break;
@@ -163,7 +163,6 @@ namespace TRL
                             SendingEmailPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                             ApplicationProcess(5);
                         }
-                        break;
                     }
                     else
                     {

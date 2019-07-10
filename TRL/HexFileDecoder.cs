@@ -82,7 +82,7 @@ namespace TRL
             this.jsonFile = loggerInformation.JsonFile;
         }
 
-        public async Task<bool> ReadIntoJsonFileAndSetupDecoder()
+        public async Task<bool> SetUpDecoderUsingJsonFile()
         {
             var jsonObject = await GetJsonObject();
             var hexString = await GetHexFile();
@@ -228,7 +228,8 @@ namespace TRL
 
                 else
                 {
-                    Channel.Unit = Char.ConvertFromUtf32(0xb0) + DecodeConstant.Celcius; //Char.ConvertFromUtf32(0xEB)
+                    //Channel.Unit = Char.ConvertFromUtf32(0xb0) + DecodeConstant.Celcius; //Char.ConvertFromUtf32(0xEB)
+                    Channel.Unit = DecodeConstant.Celcius; //Char.ConvertFromUtf32(0xEB)
                 }
             }
             else
@@ -990,7 +991,6 @@ namespace TRL
                     UserDataString += Convert.ToChar(decodeByte[i]);
                 }
             }
-
             return UserDataString;
         }
 

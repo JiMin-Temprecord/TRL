@@ -39,8 +39,8 @@ namespace TRL
         public const string Data = "SENSOR,Decode_Delta_Data";
         public const string MonTData = "SENSOR,Decode_MonT_Data";
 
-        public const string Celcius = "C"; //°
-        public const string Farenhiet = "F";
+        public const string Celcius = "°C"; //°
+        public const string Farenhiet = "°F";
         public const string Percentage = " %";
         public const string Breached = " (breached)";
 

@@ -22,7 +22,7 @@ namespace TRL
         public async Task<bool> CreatePDF(LoggerInformation loggerInformation)
         {
             var decoder = new HexFileDecoder(loggerInformation);
-            await decoder.ReadIntoJsonFileAndSetupDecoder();
+            await decoder.SetUpDecoderUsingJsonFile();
             var loggerVariables = await decoder.AssignLoggerValue();
 
             double lineCounter = 80;
@@ -158,16 +158,11 @@ namespace TRL
             //Draw graph
             DrawGraph(decoder, loggerVariables, pdfPage, pen, font);
             FillInValues(decoder, loggerVariables, loggerInformation.SerialNumber);
-
-            //Path.GetTempPath() + "\\" +
+            
             string filename = Path.GetTempPath() + loggerInformation.SerialNumber + ".pdf";
 
-            Debug.WriteLine("UNIT : " + channelOne.Unit);
-            //var stream = new MemoryStream();
             pdfDocument.Save(filename);
-            //pdfDocument.Close(true);
 
-            //Save(loggerInformation.SerialNumber, stream, filename);
             return true;
         }
 
@@ -305,9 +300,9 @@ namespace TRL
             int i = 0;
             while (i < pdfVariables.RecordedSamples && (pdfVariables.ChannelOne.Data != null))
             {
-                if (pdfVariables.ChannelOne.Data[i] > pdfVariables.ChannelOne.AboveLimits)
+                if (pdfVariables.ChannelOne.Data[i] > pdfVariables.ChannelOne.PresetUpperLimit)
                     pdfPage.DrawLine(abovelimit, xGraphMaximum, yCH0, xGraphMaximum + xGraphScale, (float)(PDFcoordinates.graph_H - ((pdfVariables.ChannelOne.Data[i] - (yLowest)) * yGraphScale)) + PDFcoordinates.graph_topY);
-                else if (pdfVariables.ChannelOne.Data[i] < pdfVariables.ChannelOne.BelowLimits)
+                else if (pdfVariables.ChannelOne.Data[i] < pdfVariables.ChannelOne.PresetLowerLimit)
                     pdfPage.DrawLine(belowlimit, xGraphMaximum, yCH0, xGraphMaximum + xGraphScale, (float)(PDFcoordinates.graph_H - ((pdfVariables.ChannelOne.Data[i] - (yLowest)) * yGraphScale)) + PDFcoordinates.graph_topY);
                 else
                     pdfPage.DrawLine(ch0, xGraphMaximum, yCH0, xGraphMaximum + xGraphScale, (float)(PDFcoordinates.graph_H - ((pdfVariables.ChannelOne.Data[i] - (yLowest)) * yGraphScale)) + PDFcoordinates.graph_topY);
@@ -316,9 +311,9 @@ namespace TRL
 
                 if (pdfVariables.IsChannelTwoEnabled)
                 {
-                    if (pdfVariables.ChannelTwo.Data[i] > pdfVariables.ChannelTwo.AboveLimits)
+                    if (pdfVariables.ChannelTwo.Data[i] > pdfVariables.ChannelTwo.PresetUpperLimit)
                         pdfPage.DrawLine(abovelimit, xGraphMaximum, yCH1, xGraphMaximum + xGraphScale, (float)(PDFcoordinates.graph_H - ((pdfVariables.ChannelTwo.Data[i] - (yLowest)) * yGraphScale)) + PDFcoordinates.graph_topY);
-                    else if (pdfVariables.ChannelTwo.Data[i] < pdfVariables.ChannelTwo.BelowLimits)
+                    else if (pdfVariables.ChannelTwo.Data[i] < pdfVariables.ChannelTwo.PresetLowerLimit)
                         pdfPage.DrawLine(belowlimit, xGraphMaximum, yCH1, xGraphMaximum + xGraphScale, (float)(PDFcoordinates.graph_H - ((pdfVariables.ChannelTwo.Data[i] - (yLowest)) * yGraphScale)) + PDFcoordinates.graph_topY);
                     else
                         pdfPage.DrawLine(ch1, xGraphMaximum, yCH1, xGraphMaximum + xGraphScale, (float)(PDFcoordinates.graph_H - ((pdfVariables.ChannelTwo.Data[i] - (yLowest)) * yGraphScale)) + PDFcoordinates.graph_topY);
@@ -345,8 +340,8 @@ namespace TRL
             var row = rowStart;
             var rowIncrement = 16;
 
-            var font = new PDFFont(FontType.Helvetica, 10, FontStyle.Regular);
-            var boldFont = new PDFFont(FontType.Helvetica, 10, FontStyle.Bold);
+            var font = new PDFFont(FontType.Helvetica, 6, FontStyle.Regular);
+            var boldFont = new PDFFont(FontType.Helvetica, 6, FontStyle.Bold);
             var tempPen = new PDFPen(Colors.Black, 1);
             var humPen = new PDFPen(Colors.Gray, 1);
 
@@ -447,46 +442,5 @@ namespace TRL
 
             return page;
         }
-
-        #region Helper Methods
-        public async void Save(String serialNumber, Stream stream, string filename)
-        {
-            stream.Position = 0;
-            StorageFile stFile;
-            if (!(Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons")))
-            {
-                FileSavePicker savePicker = new FileSavePicker();
-                savePicker.DefaultFileExtension = ".pdf";
-                savePicker.SuggestedFileName = serialNumber;
-                savePicker.FileTypeChoices.Add("Adobe PDF Document", new List<string>() { ".pdf" });
-                stFile = await savePicker.PickSaveFileAsync();
-            }
-            else
-            {
-                StorageFolder local = Windows.Storage.ApplicationData.Current.LocalFolder;
-                stFile = await local.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
-            }
-            if (stFile != null)
-            {
-                Windows.Storage.Streams.IRandomAccessStream fileStream = await stFile.OpenAsync(FileAccessMode.ReadWrite);
-                Stream st = fileStream.AsStreamForWrite();
-                st.Write((stream as MemoryStream).ToArray(), 0, (int)stream.Length);
-                st.Flush();
-                st.Dispose();
-                fileStream.Dispose();
-                /*MessageDialog messageDialog = new MessageDialog("Do you want to view the Document?", "File created.");
-                UICommand yesCmd = new UICommand("Yes");
-                messageDialog.Commands.Add(yesCmd);
-                UICommand noCmd = new UICommand("No");
-                messageDialog.Commands.Add(noCmd);
-                IUICommand cmd = await messageDialog.ShowAsync();
-                if (cmd == yesCmd)
-                {
-                    // Launch the retrieved file
-                    bool success = await Windows.System.Launcher.LaunchFileAsync(stFile);
-                } Preview PDF */
-            }
-        }
-        #endregion
     }
 }

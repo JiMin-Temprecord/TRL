@@ -20,12 +20,12 @@ namespace TRL
             message.Subject = emailSubject;
             
             var PDF = Path.GetTempPath() + serialNumber + ".pdf";
-            var EXCEL = Path.GetTempPath() + serialNumber + ".csv";
+            var CSV = Path.GetTempPath() + serialNumber + ".csv";
 
-            if (File.Exists(PDF) && (File.Exists(EXCEL)))
+            if (File.Exists(PDF) && (File.Exists(CSV)))
             {
                 builder.Attachments.Add(PDF);
-                builder.Attachments.Add(EXCEL);
+                builder.Attachments.Add(CSV);
             }
             
             message.Body = builder.ToMessageBody();
@@ -100,6 +100,8 @@ namespace TRL
                 case "TBS-NT":
                     return "NSWDataLoggerCommunication@arcbs.redcross.org.au";
                 case "TBS-TEST":
+                    return "jimin@temprecord.com";
+                case "TBS-DEMO":
                     return "jimin@temprecord.com";
                 default:
                     return "jimin@temprecord.com";
