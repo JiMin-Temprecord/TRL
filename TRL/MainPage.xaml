@@ -72,22 +72,21 @@
             <TextBlock x:Name="GeneratingDocumentLabel" Height="80" Text="Generating Documents" TextWrapping="Wrap" Width="256" FontSize="36" FontWeight="Bold" FontFamily="Calibri" TextAlignment="Center" UseLayoutRounding="False" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,45,0,0"/>
             <ProgressBar x:Name="GeneratingDocumentProgressBar" Height="20" VerticalAlignment="Top" IsIndeterminate="True" Foreground="#FF003399" Value="30" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" HorizontalAlignment="Center" Width="234" Margin="0,20,0,0"/>
         </StackPanel>
-        <StackPanel x:Name="SendingEmailPanel" HorizontalAlignment="Center" Height="550" Margin="0,100,0,0" VerticalAlignment="Top" Width="555" BorderBrush="#FF707070" FocusVisualPrimaryBrush="#FF474747" Visibility="Collapsed">
+        <StackPanel x:Name="SendingEmailPanel" HorizontalAlignment="Center" Height="405" VerticalAlignment="Top" Width="425" BorderBrush="#FF707070" Visibility="Collapsed" Margin="0,155,0,0">
             <StackPanel.Background>
-                <ImageBrush ImageSource="/Resources/email.png" Stretch="UniformToFill"/>
+                <ImageBrush ImageSource="/Resources/email.png"/>
             </StackPanel.Background>
-            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="450" Height="510">
-                <TextBlock HorizontalAlignment="Center" Height="40" Text="Sending Email" TextWrapping="Wrap" Width="450" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" TextAlignment="Center" Margin="0,100,0,0"/>
-                <ProgressBar x:Name="SendingEmailProgressBar" Height="20" VerticalAlignment="Stretch" Margin="90,270,90,0" IsIndeterminate="True" Foreground="#FF003399" Value="30"/>
-            </StackPanel>
+            <StackPanel.FocusVisualPrimaryBrush>
+                <ImageBrush/>
+            </StackPanel.FocusVisualPrimaryBrush>
+            <TextBlock HorizontalAlignment="Center" Height="30" Text="Sending Email" TextWrapping="Wrap" Width="424" FontSize="24" FontWeight="Normal" FontFamily="Myriad Pro" TextAlignment="Center" VerticalAlignment="Center" Margin="0,100,0,0"/>
+            <ProgressBar x:Name="SendingEmailProgressBar" Height="20" VerticalAlignment="Top" IsIndeterminate="True" Foreground="#FF003399" Value="30" HorizontalAlignment="Center" Width="210" Margin="0,155,0,0"/>
         </StackPanel>
-        <StackPanel x:Name="SentEmailPanel" HorizontalAlignment="Center" Height="550" Margin="0,100,0,0" VerticalAlignment="Top" Width="555" BorderBrush="#FF707070" FocusVisualPrimaryBrush="#FF474747" Visibility="Collapsed" Background="White">
-            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Width="450" Height="400" Margin="0,50,0,0" VerticalAlignment="Stretch">
-                <StackPanel.Background>
-                    <ImageBrush Stretch="UniformToFill" ImageSource="/Resources/emailSuccess.png"/>
-                </StackPanel.Background>
-            </StackPanel>
-            <TextBlock HorizontalAlignment="Center" Height="40" Text="Sent Email" TextWrapping="Wrap" Width="594" FontSize="36" FontWeight="Bold" FontFamily="Myriad Pro" TextAlignment="Center" VerticalAlignment="Stretch"/>
+        <StackPanel x:Name="SentEmailPanel" HorizontalAlignment="Center" Height="420" Margin="0,150,0,0" VerticalAlignment="Top" Width="425" BorderBrush="#FF707070" FocusVisualPrimaryBrush="#FF474747" Visibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Visible" FocusVisualSecondaryBrush="#99FFFFFF">
+            <StackPanel.Background>
+                <ImageBrush ImageSource="ms-appx:///Resources/emailSuccess.png" Stretch="Uniform"/>
+            </StackPanel.Background>
+            <TextBlock x:Name="SentEmailTextBox" HorizontalAlignment="Center" Height="40" Text="Sent Email" TextWrapping="Wrap" Width="200" FontSize="18" FontWeight="Bold" FontFamily="Myriad Pro" TextAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="False" Margin="0,300,0,0"/>
         </StackPanel>
         <Button x:Name="ReadLoggerButton" Content="Read Logger" HorizontalAlignment="Left" Margin="391,585,0,0" VerticalAlignment="Top" Width="170" Height="42.2" Background="#33FFFFFF" BorderBrush="Black" FontSize="20" FontWeight="Bold" FontFamily="Calibri" Visibility="Collapsed" BorderThickness="1,1,1,1" Click="ReadLogger_Click"/>
     </Grid>

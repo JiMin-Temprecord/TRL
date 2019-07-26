@@ -21,7 +21,6 @@ namespace TRL
             BuildCSV(loggerInformation, loggerVariables);
             SaveCSV(loggerInformation);
         }
-
         private void BuildCSV(LoggerInformation loggerInformation, LoggerVariables loggerVariables)
         {
             var decoder = new HexFileDecoder(loggerInformation);
@@ -44,9 +43,9 @@ namespace TRL
             WriteLoggerInfotoList(LabelConstant.TagsPlaced, loggerVariables.TagsPlaced.ToString());
             row++;
 
-            WritetoList(row, 2,LabelConstant.StatChannelOneLabel);
+            WritetoList(row, 2,LabelConstant.ChannelOneLabel);
             if (channelTwoEnabled)
-                WritetoList(row, 3,LabelConstant.StatChannelTwoLabel);
+                WritetoList(row, 3,LabelConstant.ChannelTwoLabel);
             row++;
 
             WriteChannelStattoList(channelOne, channelTwo, channelTwoEnabled, LabelConstant.PresentUpperLimit, c => c.PresetUpperLimit.ToString("N2"));
@@ -81,22 +80,20 @@ namespace TRL
 
             row++;
             if (channelTwoEnabled)
-                WritetoList(row, 3,LabelConstant.GraphChannelTwoLabel);
-            WriteLoggerInfotoList(LabelConstant.DateTime, LabelConstant.GraphChannelOneLabel);
+                WritetoList(row, 3,LabelConstant.ChannelTwoLabel);
+            WriteLoggerInfotoList(LabelConstant.DateTime, LabelConstant.ChannelOneLabel);
             row++;
 
             var startRange = row;
             var endRange = (row + loggerVariables.RecordedSamples);
             FillValueRange(decoder, loggerVariables, channelOne, channelTwo, startRange, endRange);
         }
-
         void WriteLoggerInfotoList(string label, string value)
         {
             WritetoList(row, 1,label);
             WritetoList(row, 2,value);
             row++;
         }
-
         void WriteChannelLimitstoList(ChannelConfig channelOne, ChannelConfig channelTwo, bool channelTwoEnabled, string label, Func<ChannelConfig, string> getString)
         {
             WritetoList(row, 1,label);
@@ -107,7 +104,6 @@ namespace TRL
             }
             row++;
         }
-
         void WriteChannelStattoList(ChannelConfig channelOne, ChannelConfig channelTwo, bool channelTwoEnabled, string label, Func<ChannelConfig, string> getString)
         {
             WritetoList(row, 1,label);
@@ -118,7 +114,6 @@ namespace TRL
             }
             row++;
         }
-
         void FillValueRange(HexFileDecoder decoder, LoggerVariables pdfVariables, ChannelConfig channelOne, ChannelConfig channelTwo, int start, int end)
         {
             for (int i = 0; i < pdfVariables.RecordedSamples; i++)
@@ -131,7 +126,6 @@ namespace TRL
             }
 
         }
-
         void WritetoList(int row, int coloum, string value)
         {
             if (row <= csvStringList.Count)
@@ -163,7 +157,6 @@ namespace TRL
                 csvStringList[row - 1][coloum - 1] = value + ",";
             }
         }
-
         async void SaveCSV(LoggerInformation loggerInformation)
         {
             var csvPath = Path.GetTempPath() + "\\" + loggerInformation.SerialNumber + ".csv";

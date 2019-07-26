@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -12,6 +11,7 @@ namespace TRL
 {
     public class HexFileDecoder
     {
+        string loggerName;
         string loggerState;
         string batteryPercentage;
         string userData = string.Empty;
@@ -19,6 +19,9 @@ namespace TRL
 
         bool loopOverwrite = false;
         bool fahrenheit = false;
+        bool notOverflown = false;
+        bool ch1Enabled = false;
+        bool ch2Enabled = false;
 
         long samplePeriod = 0;
         long secondsTimer = 0;
@@ -36,30 +39,32 @@ namespace TRL
         int totalUses = 0;
         int loopOverwriteStartAddress = 0;
         int dataAddress = 32767;
-        long recordedSamples = 0;
+        int recordedSamples = 0;
+        int mont2Samples = 0;
         int tagNumbers = 0;
+        int samplePointer = 0;
+        int sensorNumber = 0;
 
         int[] compressionTable = new int[128];
 
         double lowestTemp = 0;
         double resolution = 0;
-
-        int[] highestPosition = new int[8];
-        int[] lowestPosition = new int[8];
-        int[] sensorStartingValue = { 0, 0, 0, 0, 0, 0, 0, 0 };
-        int[] sensorTablePointer = { 0, 0, 0, 0, 0, 0, 0, 0 };
-        int[] sensorType = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        readonly int[] highestPosition = new int[8];
+        readonly int[] lowestPosition = new int[8];
+        readonly int[] sensorStartingValue = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        readonly int[] sensorTablePointer = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        readonly int[] sensorType = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
         double[] upperLimit = new double[8];
         double[] lowerLimit = new double[8];
-        double[] sensorMin = new double[8];
-        double[] sensorMax = new double[8];
-        double[] mean = new double[8];
-        double[] mkt = new double[8];
-        double[] withinLimit = new double[8];
-        double[] belowLimit = new double[8];
-        double[] aboveLimit = new double[8];
-        
+        readonly double[] sensorMin = new double[8];
+        readonly double[] sensorMax = new double[8];
+        readonly double[] mean = new double[8];
+        readonly double[] mkt = new double[8];
+        readonly double[] withinLimit = new double[8];
+        readonly double[] belowLimit = new double[8];
+        readonly double[] aboveLimit = new double[8];
+
         List<List<double>> Data = new List<List<double>>();
         List<int> Tag = new List<int>();
 
@@ -90,6 +95,7 @@ namespace TRL
 
             if (loggerInformation.LoggerName == DecodeConstant.G4)
             {
+                loggerName = "G4";
                 userDataLength = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.UserDataLength);
                 numberChannel = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.NumberOfChannels);
                 emailID = await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.EmailID);
@@ -119,6 +125,7 @@ namespace TRL
 
             if (loggerInformation.LoggerName == DecodeConstant.MonT)
             {
+                loggerName = "MonT";
                 numberChannel = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.NumberOfChannels);
                 userDataLength = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.UserDataLength);
                 userData = await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.UserData);
@@ -139,10 +146,43 @@ namespace TRL
                 timeAtFirstSameple = await ReadLongFromJObject(jsonObject, hexStringArray, DecodeConstant.MonTTimeAtFirstSample);
                 lowestTemp = Convert.ToDouble(await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.LowestTemp));
                 resolution = Convert.ToDouble(await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.ResolutionRatio)) / 100;
-                recordedSamples = await ReadLongFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalRecordedSamples);
+                recordedSamples = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalRecordedSamples);
                 lowerLimit = await ReadArrayFromJObject(jsonObject, hexStringArray, DecodeConstant.LowerLimit);
                 upperLimit = await ReadArrayFromJObject(jsonObject, hexStringArray, DecodeConstant.UpperLimit);
                 await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.MonTData);
+                return true;
+            }
+
+            if (loggerInformation.LoggerName == DecodeConstant.MonT2)
+            {
+                loggerName = await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.MonT2Model);
+                numberChannel = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.NumberOfChannels);
+                ch1Enabled = await ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.ChannelOneEnable);
+                if (ch1Enabled) sensorNumber++;
+                ch2Enabled = await ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.ChannelTwoEnable);
+                if (ch2Enabled) sensorNumber++;
+                userDataLength = 128;
+                userData = await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.UserData);
+                loggerState = await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.LoggerState);
+                fahrenheit = await ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.IsFahrenhiet);
+                utcReferenceTime = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.UTCReferenceTime);
+                totalSamplingEvents = await ReadIntFromJObject(jsonObject, hexStringArray,DecodeConstant.TotalSamplingEvents);
+                totalUses = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalUses);
+                batteryPercentage = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.BatteryPercentage) + DecodeConstant.Percentage;
+                loopOverwrite = await ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.LoopOverwrite);
+                notOverflown = await ReadBoolFromJObject(jsonObject, hexStringArray, DecodeConstant.NotOverflown);
+                startDelay = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.StartDelay);
+                samplePeriod = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.SamplePeriod);
+                ticksSinceStart = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TicksSinceStart);
+                ticksAtLastSample = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TicksSinceLastSample);
+                timeAtFirstSameple = await ReadLongFromJObject(jsonObject, hexStringArray, DecodeConstant.MonT2TimeAtFirstSample);
+                recordedSamples = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.TotalRecordedSamples);
+                samplePointer = await ReadIntFromJObject(jsonObject, hexStringArray, DecodeConstant.SamplePointer);
+                lowerLimit[0] = Convert.ToDouble(await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.MonT2LowerLimitCh1));
+                lowerLimit[1] = Convert.ToDouble(await ReadStringFromJObject(jsonObject, hexStringArray,DecodeConstant.MonT2LowerLimitCh2));
+                upperLimit[0] = Convert.ToDouble(await ReadStringFromJObject(jsonObject, hexStringArray,DecodeConstant.MonT2UpperLimitCh1));
+                upperLimit[1] = Convert.ToDouble(await ReadStringFromJObject(jsonObject, hexStringArray,DecodeConstant.MonT2UpperLimitCh2));
+                await ReadStringFromJObject(jsonObject, hexStringArray, DecodeConstant.MonT2DecodeValues);
                 return true;
             }
 
@@ -151,9 +191,11 @@ namespace TRL
 
         public async Task<LoggerVariables> AssignLoggerValue()
         {
-            var loggerVariable = new LoggerVariables();
+            await SetUpDecoderUsingJsonFile();
 
-            loggerVariable.RecordedSamples = (int)recordedSamples;
+            var loggerVariable = new LoggerVariables();
+            loggerInformation.LoggerName = loggerName;
+            loggerVariable.RecordedSamples = recordedSamples;
             loggerVariable.SerialNumber = serialNumber;
             loggerVariable.LoggerState = loggerState;
             loggerVariable.BatteryPercentage = batteryPercentage;
@@ -163,10 +205,9 @@ namespace TRL
             loggerVariable.LastSample = UNIXtoUTC(timeAtFirstSameple);
             loggerVariable.TagsPlaced = tagNumbers;
             loggerVariable.TotalTrip = totalUses;
-            loggerVariable.UserData = userData.Substring(0, userDataLength);
-
+            loggerVariable.UserData = userData.Substring(0,userDataLength);
             loggerInformation.EmailId = emailID;
-            Debug.WriteLine("EMail : " + loggerInformation.EmailId);
+
             if (batteryPercentage == "255%")
             {
                 loggerVariable.BatteryPercentage = "100%";
@@ -186,7 +227,7 @@ namespace TRL
 
             AssignChannelValues(loggerVariable.ChannelOne, 0);
 
-            if (numberChannel > 1)
+            if (numberChannel > 1 || ch2Enabled)
             {
                 loggerVariable.IsChannelTwoEnabled = true;
                 AssignChannelValues(loggerVariable.ChannelTwo, 1);
@@ -221,16 +262,14 @@ namespace TRL
             if (Data.Count > 0)
                 Channel.Data = Data[i];
 
-            if (sensorType[i] == 0 || sensorType[i] == 6)
+            if (loggerInformation.LoggerType == 1 && i == 1)
             {
-                if (fahrenheit)
-                    Channel.Unit = DecodeConstant.Farenhiet;
-
-                else
-                {
-                    //Channel.Unit = Char.ConvertFromUtf32(0xb0) + DecodeConstant.Celcius; //Char.ConvertFromUtf32(0xEB)
-                    Channel.Unit = DecodeConstant.Celcius; //Char.ConvertFromUtf32(0xEB)
-                }
+                Channel.Unit = DecodeConstant.Percentage;
+            }
+            else if(sensorType[i] == 0 || sensorType[i] == 6)
+            {
+                if (fahrenheit) Channel.Unit = DecodeConstant.Farenhiet;
+                else Channel.Unit = DecodeConstant.Celcius;
             }
             else
             {
@@ -238,103 +277,104 @@ namespace TRL
             }
         }
 
-        async Task<byte[]> ReadHex(string[] currentinfo, String[] hexStringArray)
+        //FIX THIS
+        byte[] ReadHex(string[] currentinfo, String[] hexStringArray)
         {
-            byte[] bytes = { };
-            var addtoread = string.Empty;
-            int diff = 0;
+            var dataFromHex = string.Empty;
+            var diff = 99;
+            var i = 0;
 
-            for (int i = 0; i < hexStringArray.Length-1; i++)
-            { 
-                string line = hexStringArray[i];
-                string address = line.Substring(0, 6);
-                string data = line.Substring(7, line.Length - 7);
-                string temp = string.Empty;
-                
-                if (Convert.ToInt32(currentinfo[0], 16) >= Convert.ToInt32(address, 16))
-                    addtoread = address;
+            while (diff > 58 || diff < 0)
+            {
+                var currentAddress = hexStringArray[i].Substring(0, 6);
+                diff = Convert.ToInt32(currentinfo[0], 16) - Convert.ToInt32(currentAddress, 16);
+                i++;
 
-                if (addtoread == address)
+                if (i == hexStringArray.Length - 1)
                 {
-                    diff = Convert.ToInt32(currentinfo[0], 16) - Convert.ToInt32(address, 16);
-                    if (diff >= 0 && diff < 58) // reader can only send 64bytes at a time
+                    return new byte[] { 0x00 };
+                }
+            }
+
+            i--;
+            var address = hexStringArray[i].Substring(0, 6);
+            var data = hexStringArray[i].Substring(7, hexStringArray[i].Length - 7);
+
+            var infolength = Convert.ToInt32(currentinfo[1]);
+
+            if (infolength == 32768) // if we are reading DATA
+            {
+                infolength = dataAddress;
+
+                if (loopOverwriteStartAddress > 0)
+                    infolength = G4MemorySize + 1;
+            }
+
+            if (infolength > 58)
+            {
+                int readinfo = 58 - diff;
+                while (infolength > 0)
+                {
+                    dataFromHex += data.Substring(diff * 2, readinfo * 2);
+                    i++;
+                    if (hexStringArray[i] != null && hexStringArray[i].Length != 0)
                     {
-                        int infolength = Convert.ToInt32(currentinfo[1]);
+                        data = hexStringArray[i].Substring(7, hexStringArray[i].Length - 7);
+                        infolength = infolength - readinfo;
+                        diff = 0;
 
-                        if (infolength == 32768) // if we are reading DATA
+                        if (infolength > (data.Length / 2))
                         {
-                            infolength = dataAddress;
-
-                            if (loopOverwriteStartAddress > 0)
-                                infolength = G4MemorySize + 1;
-                        }
-                        if (infolength > 58)
-                        {
-                            int readinfo = 58 - diff;
-                            while (infolength > 0)
-                            {
-                                temp += data.Substring(diff * 2, readinfo * 2);
-                                i = i+1;
-                                line = hexStringArray[i];
-                                if (line != null && line.Length != 0)
-                                {
-                                    data = line.Substring(7, line.Length - 7);
-                                    infolength = infolength - readinfo;
-                                    diff = 0;
-
-                                    if (infolength > (data.Length / 2))
-                                    {
-                                        readinfo = data.Length / 2;
-                                    }
-                                    else
-                                    {
-                                        readinfo = infolength;
-                                    }
-                                }
-                                else { break; }
-                            }
-                            int totallength = temp.Length;
-                            bytes = new byte[totallength / 2];
-                            for (int j = 0; j < totallength; j += 2)
-                                bytes[j / 2] = (byte)(Convert.ToByte(temp.Substring(j, 2), 16));
-                            return bytes;
+                            readinfo = data.Length / 2;
                         }
                         else
                         {
-                            if (data.Length < diff * 2 + infolength * 2)
-                            {
-                                var readNextLine = (diff * 2 + infolength * 2) - 58 * 2;
-                                temp = data.Substring(diff * 2, infolength * 2 - readNextLine);
-                                line = hexStringArray[i];
-                                data = line.Substring(7, line.Length - 7);
-                                temp += data.Substring(0, readNextLine);
-                            }
-                            else
-                                temp = data.Substring(diff * 2, infolength * 2);
-                            int totallength = temp.Length;
-                            bytes = new byte[totallength / 2];
-                            for (int j = 0; j < totallength; j += 2)
-                                bytes[j / 2] = (byte)(Convert.ToByte(temp.Substring(j, 2), 16));
-                            return bytes;
+                            readinfo = infolength;
                         }
                     }
+                    else { break; }
                 }
+
+                var totallength = dataFromHex.Length;
+                var bytes = new byte[totallength / 2];
+                for (int j = 0; j < totallength; j += 2)
+                    bytes[j / 2] = Convert.ToByte(dataFromHex.Substring(j, 2), 16);
+                return bytes;
             }
-            return bytes;
+            else
+            {
+                if (data.Length < diff * 2 + infolength * 2)
+                {
+                    var readNextLine = (diff * 2 + infolength * 2) - 58 * 2;
+                    dataFromHex = data.Substring(diff * 2, infolength * 2 - readNextLine);
+                    data = hexStringArray[i].Substring(7, hexStringArray[i].Length - 7);
+                    dataFromHex += data.Substring(0, readNextLine);
+                }
+                else
+                {
+                    dataFromHex = data.Substring(diff * 2, infolength * 2);
+                }
+
+                var totallength = dataFromHex.Length;
+                var bytes = new byte[totallength / 2];
+                for (int j = 0; j < totallength; j += 2)
+                    bytes[j / 2] = Convert.ToByte(dataFromHex.Substring(j, 2), 16);
+                return bytes;
+            }
         }
 
         #region Reading Json File
         async Task<string> ReadStringFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            var decodeByte = await ReadHex(decodeInfo, hexStringArray);
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
             return await CallDecodeFunctions(decodeInfo, decodeByte);
         }
 
         async Task<int> ReadIntFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            var decodeByte = await ReadHex(decodeInfo, hexStringArray);
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
             var intString = await CallDecodeFunctions(decodeInfo, decodeByte);
             return Convert.ToInt32(intString, 16);
         }
@@ -342,7 +382,7 @@ namespace TRL
         async Task<long> ReadLongFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            var decodeByte = await ReadHex(decodeInfo, hexStringArray);
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
             var longString = await CallDecodeFunctions(decodeInfo, decodeByte);
             return Convert.ToInt32(longString);
         }
@@ -350,7 +390,7 @@ namespace TRL
         async Task<double[]> ReadArrayFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            var decodeByte = await ReadHex(decodeInfo, hexStringArray);
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
             var limitString = await CallDecodeFunctions(decodeInfo, decodeByte);
             var limit = limitString.Split(','); ;
             return Array.ConvertAll<string, double>(limit, Double.Parse);
@@ -359,7 +399,7 @@ namespace TRL
         async Task<bool> ReadBoolFromJObject(JObject jsonObject, String[] hexStringArray, string info)
         {
             var decodeInfo = JsontoString(jsonObject, info);
-            var decodeByte = await ReadHex(decodeInfo, hexStringArray);
+            var decodeByte = ReadHex(decodeInfo, hexStringArray);
             return Convert.ToBoolean(await CallDecodeFunctions(decodeInfo, decodeByte));
         }
 
@@ -428,6 +468,9 @@ namespace TRL
                     return _4ByteBuilt(decodeByte);
 
                 case "_4_Byte_to_Decimal":
+                    return ToLittleEndian(decodeByte);
+
+                case "_4_Byte_to_Decimal_2":
                     return ToLittleEndian(decodeByte);
 
                 case "_4_Byte_to_UNIX":
@@ -525,6 +568,25 @@ namespace TRL
                 case "*Logger_State":
                     return LoggerState(decodeByte);
 
+                case "MonT2_Model":
+                    return MonT2Model(decodeByte);
+
+                case "MonT2_Limit_Convert":
+                    return MonT2LimitConvert(decodeByte);
+
+                case "MonT2_SampleNum":
+                    return MonT2SampleNum(decodeByte);
+
+                case "MonT2_SensorNumber":
+                    return decodeByte[0].ToString();
+
+                case "MonT2_Value_Decode":
+                    MonT2ValueDecode(decodeByte);
+                    break;
+
+                case "SamplePointer":
+                    return decodeByte[0].ToString();
+
                 case "SampleNumber_logged_MonT":
                     return SampleNumberLoggedMonT(decodeByte);
 
@@ -537,6 +599,9 @@ namespace TRL
 
                 case "Time_FirstSample_MonT":
                     return TimeFirstSampleMonT(decodeByte);
+
+                case "Time_FirstSample_MonT2":
+                    return TimeFirstSampleMonT2(decodeByte);
 
                 case "Time_LastSample_MonT":
                     return TimeLastSampleMonT(decodeByte);
@@ -564,7 +629,6 @@ namespace TRL
         }
         string _2ByteToTemperatureMonT(byte[] decodeByte)
         {
-
             var value = (((decodeByte[1]) & 0xFF) << 8) | (decodeByte[0] & 0xFF);
             value -= 4000;
             var V = ((double)value / 100);
@@ -689,7 +753,6 @@ namespace TRL
                 {
                     check = false;
                 }
-                Debug.WriteLine("VERIFYVALUE : " + verifyValue);
                 sensorStartingValue[currentSensor] -= verifyValue;
                 sensorStartingValue[currentSensor] *= -1;
 
@@ -713,20 +776,23 @@ namespace TRL
         void DecodeDeltaData(byte[] decodeByte)
         {
             var memoryStart = loopOverwriteStartAddress;
-            Debug.WriteLine("START : " + memoryStart.ToString("X02"));
+            Debug.WriteLine("memoryStart : " + memoryStart);
             if (memoryStart > 0)
             {
                 memoryStart = FindStartSentinel(memoryStart - 1, 16, decodeByte);
+                Debug.WriteLine("memoryStart : " + memoryStart);
                 memoryStart++;
-                Debug.WriteLine("STARTSentinel : " + memoryStart.ToString("X02"));
+                Debug.WriteLine("memoryStart : " + memoryStart);
             }
             if (decodeByte.Length > 0)
             {
                 if (CheckStartSentinel(decodeByte, memoryStart))
                 {
+                    Debug.WriteLine("memoryStart : " + memoryStart);
                     memoryStart += ((6 * numberChannel) + 1);
                     memoryStart &= G4MemorySize;
                     memoryStart = FindStartSentinel(memoryStart, (8 * numberChannel), decodeByte);
+                    Debug.WriteLine("memoryStart : " + memoryStart);
                     if (memoryStart != 0xFFFF)
                     {
                         memoryStart++;
@@ -735,7 +801,6 @@ namespace TRL
                 }
             }
         }
-
         void DecodeMonTData(byte[] decodeByte)
         {
             int a = 0;
@@ -869,18 +934,231 @@ namespace TRL
         }
         string LoggerState(byte[] decodeByte)
         {
+            if (loggerInformation.LoggerType == 1) // MonT2
+            {
+                switch (decodeByte[0])
+                {
+                    case 0:
+                        return "Sleep";
+                    case 1:
+                        return "No Config";
+                    case 2:
+                        return "Ready";
+                    case 3:
+                        return "Start Delay";
+                    case 4:
+                        return "Logging";
+                    case 5:
+                        return "Stopped";
+                    case 6:
+                        return "Reuse";
+                    case 7:
+                        return "Error";
+                    default:
+                        return "Undefined";
+                }
+            }
+            else
+            {
+                switch (decodeByte[0])
+                {
+                    case 0:
+                        return "Ready";
+                    case 1:
+                        return "Delay";
+                    case 2:
+                        return "Logging";
+                    case 3:
+                        return "Stopped";
+                    default:
+                        return "Undefined";
+                }
+            }
+        }
+        string MonT2LimitConvert(byte[] decodeByte)
+        {
+            double Limit = ((((decodeByte[1] & 0xFF) << 8) | (decodeByte[0] & 0xFF)) / 10);
+            return Limit.ToString();
+        }
+
+        string MonT2Model(byte[] decodeByte)
+        {
             switch (decodeByte[0])
             {
-                case 0:
-                    return "Ready";
                 case 1:
-                    return "Delay";
+                    return "MonT2 Plain";
                 case 2:
-                    return "Running";
+                    return "MonT2 Plain USB";
                 case 3:
-                    return "Stopped";
+                    return "MonT2 Plain RH USB";
+                case 4:
+                    return "MonT2 LCD";
+                case 5:
+                    return "MonT2 LCD USB";
+                case 6:
+                    return "MonT2 LCD RH USB";
+                case 7:
+                    return "MonT2 PDF";
+                case 8:
+                    return "MonT2 RH PDF";
+                case 9:
+                    return "MonT2 LCD PDF";
+                case 10:
+                    return "MonT2 LCD RH PDF";
+                case 11:
+                    return "MonT2 Plain RH";
+                case 12:
+                    return "MonT2 LCD RH";
                 default:
-                    return "Undefined";
+                    return "Unknown";
+            }
+        }
+
+        string MonT2SampleNum(byte[] decodeByte)
+        {
+            int sampleNumber = ((((decodeByte[3]) & 0xFFFFFF) << 24) | (((decodeByte[2]) & 0xFFFF) << 16) | (((decodeByte[1]) & 0xFF) << 8) | (decodeByte[0] & 0xFF));
+
+            if (sensorNumber == 2)
+            {
+                sampleNumber *= 2;
+            }
+
+            mont2Samples = sampleNumber;
+
+            if (!notOverflown)
+                sampleNumber = 16384;
+
+            return sampleNumber.ToString();
+        }
+
+        void MonT2ValueDecode(byte[] decodeByte)
+        {
+            var ch1List = new List<double>();
+            var ch2List = new List<double>();
+            var tagList = new List<int>();
+            bool hasFlag;
+            short sample1;
+            short sample2;
+            int index = 0;
+
+            Console.WriteLine("SAMPLE NUMBER : " + mont2Samples);
+            //When MonT2 is loop over writing
+            if (!notOverflown && loopOverwrite)
+            {
+                var bytePointer = samplePointer * 2;
+                var position = 0;
+                var pageOffset = bytePointer % 512;
+                var address = ((bytePointer / 512) + 1) * 512;
+                address += pageOffset;
+
+                var copyArrayList = new List<double>();
+                //Creating a temporary array - 33280 is MAX memory size with an extra page of 512 bytes
+                for (int i = 0; i < 33280; i++)
+                {
+                    copyArrayList.Add(decodeByte[i]);
+                }
+                //Copying the top half back in the array
+                for (int i = address; i < 33280; i++)
+                {
+                    decodeByte[position] = (byte)(copyArrayList[i]);
+                    position++;
+                }
+                //Copying the bottom half into the array
+                for (int i = 0; i < samplePointer * 2; i++)
+                {
+                    decodeByte[position] = (byte)(copyArrayList[i]);
+                    position++;
+                }
+
+            }
+
+
+            if (ch1Enabled && ch2Enabled)
+            {
+                InitSensorStatisticsField(0);
+                InitSensorStatisticsField(1);
+
+                for (int i = 0; i < mont2Samples * 2; i++)
+                {
+                    sample1 = (short)(decodeByte[i] & 0xff);
+                    i++;
+                    sample1 |= (short)(decodeByte[i] << 8);
+                    i++;
+                    sample2 = (short)(decodeByte[i] & 0xff);
+                    i++;
+                    sample2 |= (short)(decodeByte[i] << 8);
+                    hasFlag = ((sample1 & (0x0002)) != 0);
+
+                    ch1List.Add(((double)(sample1 >> 2)) / 10);
+                    ch2List.Add(((double)(sample2 >> 2)) / 10);
+                    if (hasFlag)
+                    {
+                        tagList.Add(index);
+                    }
+
+                    TemperatureStatistics(0, ((double)(sample1 >> 2)) / 10, index);
+                    TemperatureStatistics(1, ((double)(sample2 >> 2)) / 10, index);
+                    index++;
+                }
+
+                Data.Add(ch1List);
+                Data.Add(ch2List);
+                Tag = tagList;
+                recordedSamples /= 2;
+                FinalizeStatistics(0);
+                FinalizeStatistics(1);
+            }
+            else if (ch1Enabled)
+            {
+                InitSensorStatisticsField(0);
+                for (int i = 0; i < mont2Samples * 2; i++)
+                {
+                    sample1 = (short)(decodeByte[i] & 0xff);
+                    i++;
+                    sample1 |= (short)(decodeByte[i] << 8);
+                    hasFlag = ((sample1 & (0x0002)) != 0);
+
+                    ch1List.Add(((double)(sample1 >> 2)) / 10);
+                    if (hasFlag)
+                    {
+                        tagList.Add(index);
+                    }
+
+                    TemperatureStatistics(0, ((double)(sample1 >> 2)) / 10, index);
+                    index++;
+                }
+
+                Data.Add(ch1List);
+                Tag = tagList;
+
+
+                FinalizeStatistics(0);
+            }
+            else if (ch2Enabled)
+            {
+                InitSensorStatisticsField(1);
+
+                for (int i = 0; i < mont2Samples * 2; i++)
+                {
+                    sample2 = (short)(decodeByte[i] & 0xff);
+                    i++;
+                    sample2 |= (short)(decodeByte[i] << 8);
+                    hasFlag = ((sample2 & (0x0002)) != 0);
+
+                    ch2List.Add(((double)(sample2 >> 2)) / 10);
+                    if (hasFlag)
+                    {
+                        tagList.Add(index);
+                    }
+
+                    TemperatureStatistics(1, ((double)(sample2 >> 2)) / 10, index);
+                    index++;
+                }
+                Data.Add(ch1List);
+                Data.Add(ch2List);
+                Tag = tagList;
+
+                FinalizeStatistics(1);
             }
         }
         void ReadStoreData(byte[] decodeByte, int memoryStart)
@@ -917,7 +1195,6 @@ namespace TRL
                         {
                             sensorStartingValue[i] += (decodeByte[dataPointer]);
                         }
-                        
                         channelList.Add((double)sensorStartingValue[i] / 100);
                         TemperatureStatistics(i, ((double)sensorStartingValue[i] / 100), arrayPointer);
                         totalSameples++;
@@ -940,7 +1217,7 @@ namespace TRL
                 return "4681";
             else
             {
-                long samplenumber = (((long)(ticksAtLastSample - startDelay) / samplePeriod) + 1);
+                long samplenumber = (((ticksAtLastSample - startDelay) / samplePeriod) + 1);
                 return samplenumber.ToString();
             }
         }
@@ -959,14 +1236,12 @@ namespace TRL
                 sensorAddressArray[0] = decodeByte[pointer + 10].ToString("x02") + decodeByte[pointer + 9].ToString("x02");
                 sensorAddressArray[1] = "21"; // size of the sensor information 
 
-                var sensorInfoArray = await ReadHex(sensorAddressArray, hexStringArray);
-                
+                var sensorInfoArray = ReadHex(sensorAddressArray, hexStringArray);
+
                 if (sensorInfoArray.Length != 0)
                 {
                     var sensorData = sensorInfoArray[20] << 16 | sensorInfoArray[19] << 8 | sensorInfoArray[18];
-                    Debug.WriteLine("sensorType : " + sensorType[i]);
-                    Debug.WriteLine("sensorDATA : " + sensorData);
-                    if (sensorType[i] == 0 || sensorType[i] == 6) //Temperature Sensors
+                    if (sensorType[i] == 0 || sensorType[i] == 6) // get yasiru to explain why
                     {
                         sensorStartingValue[i] = Kelvin - sensorData;
                     }
@@ -987,13 +1262,11 @@ namespace TRL
                 {
                     if (decodeByte[i] == 13)
                         decodeByte[i] = 32;
-
                     UserDataString += Convert.ToChar(decodeByte[i]);
                 }
             }
             return UserDataString;
         }
-
         string TimeFirstSampleMonT(byte[] decodeByte)
         {
             if (loopOverwrite)
@@ -1007,13 +1280,62 @@ namespace TRL
                 return timeAtFirstSameple.ToString();
             }
         }
+        string TimeFirstSampleMonT2(byte[] decodeByte)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+            if (decodeByte[0] == (byte)0xFF && decodeByte[1] == (byte)0xFF && decodeByte[2] == (byte)0xFF && decodeByte[3] == (byte)0xFF && decodeByte[4] == (byte)0xFF && decodeByte[5] == (byte)0xFF)
+            {
+                return "0";
+            }
+            else
+            {
+                int year = (decodeByte[0] >> 1) + 2000;
+                int month = (((decodeByte[1] & 0xff) >> 4) - 1);
+                var dateTime = new DateTime(year, month, decodeByte[2], decodeByte[3], decodeByte[4], decodeByte[5]);
+
+                Console.WriteLine("date time : " + dateTime);
+
+                if (!notOverflown && loopOverwrite)
+                {
+                    long val;
+                    if (loggerState == "Running")
+                    {
+                        val = ((utcReferenceTime) - ((16384 / sensorNumber) * samplePeriod) - (ticksSinceStart - ticksAtLastSample));
+                        mont2Samples = 16384;
+                        return val.ToString();
+                    }
+                    else
+                    {
+                        int seconds = (int)samplePeriod;
+                        int maxMem = 16384;
+                        if (sensorNumber == 2)
+                        {
+                            maxMem = maxMem / 2;
+                        }
+
+                        maxMem = ((int)mont2Samples / sensorNumber) - maxMem;
+                        seconds = seconds * maxMem;
+
+                        var date = dateTime.AddSeconds(seconds);
+                        date = date.AddSeconds(startDelay);
+                        mont2Samples = 16384;
+                        return (date - epoch).TotalSeconds.ToString();
+                    }
+                }
+                else
+                {
+                    dateTime = dateTime.AddSeconds(startDelay);
+                    return (dateTime - epoch).TotalSeconds.ToString();
+                }
+
+            }
+        }
         string TimeLastSampleMonT(byte[] decodeByte)
         {
             var LastSample = (utcReferenceTime - (4294967040 - secondsTimer));
             return LastSample.ToString();
         }
-
         string ToLittleEndian(byte[] decodebyte)
         {
             var sb = new StringBuilder();
@@ -1021,6 +1343,7 @@ namespace TRL
             {
                 sb.Append(decodebyte[i].ToString("x02"));
             }
+
             return sb.ToString();
         }
         string ToBigEndian(byte[] decodebyte)
@@ -1096,6 +1419,7 @@ namespace TRL
 
             mkt[currentChannel] += Math.Exp((-Delta_H) / ((Value + KelvinDec) * R));
             mean[currentChannel] += Value;
+
             recordedSamples++;
         }
         void FinalizeStatistics(int currentChannel)
@@ -1104,7 +1428,6 @@ namespace TRL
             mkt[currentChannel] = (Delta_H / R) / (-Math.Log(mkt[currentChannel] / recordedSamples));
         }
         #endregion
-
     }
 }
 

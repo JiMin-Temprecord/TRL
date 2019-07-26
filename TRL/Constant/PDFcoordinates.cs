@@ -2,18 +2,15 @@
 {
     public static class PDFcoordinates
     {
-        public static readonly int partitionXstart = 10;
-        public static readonly int partitionXend = 680;
-
         public static readonly int first_column = 20;
-        public static readonly int second_column = 215;
-        public static readonly int third_column = 470;
+        public static readonly int second_column = 275;
+        public static readonly int third_column = 530;
 
-        public static readonly int line_counter = 80;
-        public static readonly int line_inc = 17;
+        public static readonly double line_counter = 80;
+        public static readonly double line_inc = 17;
         public static readonly int section_inc = 25;
 
-        public static readonly int limitinfo_startX = 557;
+        public static readonly int limitinfo_startX = 550;
         public static readonly int limitinfo_startY = 210;
 
         public static readonly int sign_left = 550;
@@ -31,8 +28,8 @@
         public static readonly int line3_endX = 690;
         public static readonly int line3_endY = 567;
 
-        public static readonly int box1_X1 = 470;
-        public static readonly int box1_X2 = 670;
+        public static readonly int box1_X1 = 490;
+        public static readonly int box1_X2 = 690;
         public static readonly int box1_Y1 = 100;
         public static readonly int box1_Y2 = 226;
 
@@ -40,27 +37,27 @@
         public static readonly int box2_X2 = 480;
         public static readonly int box2_Y1 = 900;
         public static readonly int box2_Y2 = 960;
-           
+
         public static readonly int box3_X1 = 490;
         public static readonly int box3_X2 = 690;
         public static readonly int box3_Y1 = 900;
         public static readonly int box3_Y2 = 960;
-          
+
         public static readonly int commentX = 15;
         public static readonly int commentY = 915;
-              
+
         public static readonly int sigX = 500;
         public static readonly int sigY = 915;
-         
+
         public static readonly int siteX = 300;
         public static readonly int siteY = 980;
-     
+
         public static readonly int dateX = 555;
         public static readonly int dateY = 25;
-     
+
         public static readonly int versionX = 10;
         public static readonly int versionY = 980;
- 
+
         public static readonly int graph_topY = 585;
         public static readonly int graph_W = 610;
         public static readonly int graph_H = 270;
@@ -70,7 +67,7 @@
 
         public static readonly int graph_l_lineX_start = 55;
         public static readonly int graph_l_lineX_end = 55 + 610;
-  
+
         public static readonly int G_axis_startX = 55;
         public static readonly int G_axis_startY = 585;
         public static readonly int G_axis_meetX = 55;

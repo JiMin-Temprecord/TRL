@@ -1,10 +1,11 @@
-﻿
-namespace TRL.Constant
+﻿namespace TRL.Constant
 {
     public class LabelConstant
     {
         public const string Title = "Loggger Report";
         public const string SerialNumber = "S/N: ";
+        public const string CompanyName = "TEMPRECORD";
+        public const string TradeMark = "TM";
         public const string Page = "Page ";
         public const string Website = "www.temprecord.com";
         public const string Model = "Model : ";
@@ -33,10 +34,9 @@ namespace TRL.Constant
         public const string TimeBelowLimit = "Time below Lower Limit : ";
         public const string UserComment = "User Comments : ";
 
-        public const string StatChannelOneLabel = " #1 - Temperature";
-        public const string StatChannelTwoLabel = " #2 - Humidity";
-        public const string GraphChannelOneLabel = " _Temperature ";
-        public const string GraphChannelTwoLabel = " _Humidity ";
+        public const string Channel = "Channel :";
+        public const string ChannelOneLabel = "Temperature ";
+        public const string ChannelTwoLabel = "Humidity ";
 
         public const string WithinLimit = " Within Limits ";
         public const string LimitsExceeded = " Limits Exceeded ";

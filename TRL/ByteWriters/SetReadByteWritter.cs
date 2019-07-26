@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TRL
+﻿namespace TRL
 {
     class SetReadByteWritter : IByteWriter
     {
@@ -15,6 +13,16 @@ namespace TRL
         {
             switch (loggerType)
             {
+                case 1:
+                    sendMessage[0] = 0x02;
+                    sendMessage[1] = 0x07;
+                    sendMessage[2] = 0x02;
+                    sendMessage[3] = 0x01;
+                    sendMessage[4] = 0x3A;
+                    sendMessage[5] = 0x00;
+                    sendMessage[6] = 0x00;
+                    return Communication.AddCRC(7, sendMessage);
+
                 case 3:
                     sendMessage[0] = 0x02;
                     sendMessage[1] = 0x06;

@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10" IgnorableNamespaces="uap mp iot">
-  <Identity Name="7fc569f8-6f5d-4ea2-bc5f-474f498c4611" Publisher="CN=JiMin" Version="1.0.0.0" />
-  <mp:PhoneIdentity PhoneProductId="7fc569f8-6f5d-4ea2-bc5f-474f498c4611" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="Temprecord.TempLite" Publisher="CN=053FB836-9DA4-458B-A7BA-DC83A9C4B6E3" Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="f4487db6-b92d-4263-bfd4-6c0309da07a8" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>TRL</DisplayName>
-    <PublisherDisplayName>JiMin</PublisherDisplayName>
+    <DisplayName>TempLite</DisplayName>
+    <PublisherDisplayName>Temprecord</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
@@ -15,21 +15,18 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="TRL.App">
-      <uap:VisualElements DisplayName="TRL" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="TRL" BackgroundColor="transparent">
+      <uap:VisualElements DisplayName="TempLite" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="TRL" BackgroundColor="transparent">
         <uap:DefaultTile ShortName="TRL" Square310x310Logo="Assets\LargeTile.png" Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\logo.png">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square310x310Logo" />
+          </uap:ShowNameOnTiles>
         </uap:DefaultTile>
-        <uap:SplashScreen Image="Assets\SplashScreen.png" />
-        <uap:InitialRotationPreference>
-          <uap:Rotation Preference="portrait" />
-          <uap:Rotation Preference="landscape" />
-          <uap:Rotation Preference="portraitFlipped" />
-          <uap:Rotation Preference="landscapeFlipped" />
-        </uap:InitialRotationPreference>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="transparent" />
       </uap:VisualElements>
     </Application>
   </Applications>
   <Capabilities>
-    <Capability Name="internetClient" />
+    <Capability Name="internetClientServer" />
     <uap:Capability Name="removableStorage" />
     <DeviceCapability Name="usb">
       <Device Id="vidpid:0403 D469">
@@ -45,5 +42,16 @@
         <Function Type="winUsbId:88bae032-5a81-49f0-bc3d-a4ff138216d6" />
       </Device>
     </DeviceCapability>
+      <DeviceCapability Name="serialcommunication">
+        <Device Id="vidpid:0403 D469">
+          <Function Type="name:serialPort" />
+        </Device>
+        <Device Id="vidpid:0403 D468">
+          <Function Type="name:serialPort" />
+        </Device>
+        <Device Id="vidpid:0403 6015">
+          <Function Type="name:serialPort" />
+        </Device>
+      </DeviceCapability>
   </Capabilities>
 </Package>

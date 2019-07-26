@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
+using Windows.Devices.SerialCommunication;
 using Windows.Devices.Usb;
 using Windows.Foundation;
 
@@ -17,15 +20,19 @@ namespace TRL
         bool goingones = false;
 
         UsbDevice usbDevice = null;
+        SerialDevice serialDevice = null;
         UsbSetupPacket setupPacket = null;
-        DeviceWatcher deviceWatcher = null;
         DeviceWatcher TempReader1Watcher = null;
         DeviceWatcher TempReader2Watcher = null;
         DeviceWatcher TempReader3Watcher = null;
+        DeviceWatcher TemprecordSerialWatcher = null;
+
+        string PortName = string.Empty;
 
         #region FindReader
-        public UsbDevice FindReader()
+        public SerialDevice FindReader()
         {
+
             if (goingones == false)
             {
                 goingones = true;
@@ -35,18 +42,27 @@ namespace TRL
                 InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID1);
 
                 InitializeTemprecordReaderDeviceWatcher(READER_VID, READER_PID2);
+
+                InitializaSerialCommunication();
             }
 
-            return usbDevice;
+            return serialDevice;
+        }
+
+        void InitializaSerialCommunication()
+        {
+            var deviceList = SerialDevice.GetDeviceSelector();
+            TemprecordSerialWatcher = DeviceInformation.CreateWatcher(deviceList);
+            AddDeviceWatcher(TemprecordSerialWatcher);
+            TemprecordSerialWatcher.Start();
         }
         void InitializeTemprecordReaderDeviceWatcher(uint VID, uint PID)
         {
-
-            switch (PID)
+                switch (PID)
             {
                 case 0xD469:
                     var ReaderSelector1 = UsbDevice.GetDeviceSelector(VID, PID);
-
+                    
                     TempReader1Watcher = DeviceInformation.CreateWatcher(ReaderSelector1);
 
                     AddDeviceWatcher(TempReader1Watcher);
@@ -84,7 +100,7 @@ namespace TRL
             usbExist = true;
 
 
-            SetupFTDI(deviceInformation.Id);
+            SetupFTDI(deviceInformation);
         }
 
         void OnDeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate deviceInformationUpdate)
@@ -93,6 +109,7 @@ namespace TRL
             TempReader1Watcher.Stop();
             TempReader2Watcher.Stop();
             TempReader3Watcher.Stop();
+            TemprecordSerialWatcher.Stop();
 
             usbDevice = null;
             goingones = false;
@@ -102,28 +119,33 @@ namespace TRL
 
         public UsbDevice GetUSBDevice()
         {
-
             return usbDevice;
         }
 
-        async void SetupFTDI(String deviceID)
+        public SerialDevice GetSerialDevice()
         {
+            return serialDevice;
+        }
+
+        async void SetupFTDI(DeviceInformation deviceInformation)
+        {
+            Debug.WriteLine("deviceID : " + deviceInformation.Id);
+
             try
             {
-                //Debug.WriteLine("Opened Device for Communication.");
-                usbDevice = await UsbDevice.FromIdAsync(deviceID);
+                //usbDevice = await UsbDevice.FromIdAsync(deviceID);
+                serialDevice = await SerialDevice.FromIdAsync(deviceInformation.Id);
             }
 
             catch (Exception exception)
             {
-                //Debug.WriteLine("USB READER : " + exception.Message.ToString());
+                Debug.WriteLine("USB READER : " + exception.Message.ToString());
             }
 
             finally
             {
                 if (usbDevice != null)
                 {
-                    //This set up the 8-bit, no parity bit, one stop bit .... usb comms
                     setupPacket = new UsbSetupPacket
                     {
                         RequestType = new UsbControlRequestType
@@ -136,10 +158,7 @@ namespace TRL
                         Value = 0x809C,
                         Length = 0
                     };
-                    UInt32 FTDI_init = await usbDevice.SendControlOutTransferAsync(setupPacket);//.controlTransfer(0x40, 0x03, 0x809C, 0x0000, null, 0, 0);
-                    //Debug.WriteLine("F.T.D.I Initialized !");
-
-                    //Need to send a second set for the reader with the transparent cable to work. This wakes up the FTDI chip in it
+                    UInt32 FTDI_init = await usbDevice.SendControlOutTransferAsync(setupPacket);
                     setupPacket = new UsbSetupPacket
                     {
                         RequestType = new UsbControlRequestType
@@ -152,8 +171,24 @@ namespace TRL
                         Value = 0x0101,
                         Length = 0
                     };
-                    UInt32 bytesTransferred = await usbDevice.SendControlOutTransferAsync(setupPacket);//.controlTransfer(0x40, 0x01, 0x0101, 0x0000, null, 0, 0);
-                    //Debug.WriteLine("FTDI Wakeup (For the Transparent Cable Logger)");
+                    UInt32 bytesTransferred = await usbDevice.SendControlOutTransferAsync(setupPacket);
+                }
+
+                else if (serialDevice != null)
+                {
+                    if (deviceInformation.Name == "USB Reader")
+                    {
+                        usbExist = true;
+                        serialDevice.BaudRate = 19200;
+                        serialDevice.Parity = SerialParity.None;
+                        serialDevice.DataBits = 8;
+                        serialDevice.StopBits = SerialStopBitCount.One;
+                        serialDevice.Handshake = SerialHandshake.None;
+                        serialDevice.IsDataTerminalReadyEnabled = true;
+
+                        serialDevice.ReadTimeout = new TimeSpan(0, 0, 0, 0, 100);
+                        serialDevice.WriteTimeout = new TimeSpan(0, 0, 0, 0, 100);
+                    }
                 }
             }
         }

@@ -2,14 +2,14 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
+using Windows.Devices.SerialCommunication;
 using Windows.Devices.Usb;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Controls;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace TRL
 {
@@ -19,6 +19,7 @@ namespace TRL
         LoggerInformation loggerInformation = new LoggerInformation();
         Reader reader;
         UsbDevice usbDevice = null;
+        SerialDevice serialDevice = null;
 
         BackgroundWorker readerBW;
 
@@ -47,7 +48,7 @@ namespace TRL
             catch { }
         }
 
-        async void PDFPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        void PDFPreview_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
         }
 
@@ -55,6 +56,7 @@ namespace TRL
         {
             var excelPath = Path.GetTempPath() + loggerInformation.SerialNumber + ".csv";
             var excelFile = await StorageFile.GetFileFromPathAsync(excelPath);
+
             try
             {
                 await Launcher.LaunchFileAsync(excelFile);
@@ -83,6 +85,7 @@ namespace TRL
                 // Find Reader 
                 case 0:
                     SentEmailPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                    LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     ReaderPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     readerBW = new BackgroundWorker();
                     readerBW.DoWork += readerBackgroundWorker_DoWork;
@@ -96,15 +99,21 @@ namespace TRL
                 case 1:
                     ReaderPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                    await communication.FindLogger(usbDevice, reader);
-                    ApplicationProcess(2);
+                    //var msg = await communication.FindLogger(usbDevice, reader);
+                    var msg = await communication.FindLogger(serialDevice, reader);
+
+                    if (msg.ToString().Equals("No Reader"))
+                        ApplicationProcess(0);
+                    else
+                        ApplicationProcess(2);
                     break;
 
                 //Reading Logger
                 case 2:
                     ReadingLoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
 
-                    errorDectected = await communication.GenerateHexFile(usbDevice, loggerInformation, reader);
+                    //errorDectected = await communication.GenerateHexFile(usbDevice, loggerInformation, reader);
+                    errorDectected = await communication.GenerateHexFile(serialDevice, loggerInformation, reader);
                     ApplicationProcess(3);
                     break;
 
@@ -160,7 +169,6 @@ namespace TRL
                         {
                             LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                             GeneratingDocumentsPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                            SendingEmailPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                             ApplicationProcess(5);
                         }
                     }
@@ -175,10 +183,13 @@ namespace TRL
 
                 //Sending Email
                 case 5:
+                    PreviewGrid.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     SendingEmailPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     var email = new Email();
                     email.SetUpEmail(loggerInformation.SerialNumber, loggerInformation.EmailId);
-                    LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                    ApplicationProcess(6);
+                    break;
+                case 6:
                     SendingEmailPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     SentEmailPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     ReadLoggerButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
@@ -189,11 +200,10 @@ namespace TRL
         #region Find Reader
         void readerBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            usbDevice = reader.GetUSBDevice();
-            while (usbDevice == null)
+            //usbDevice = reader.GetUSBDevice();
+            while (serialDevice == null)
             {
-                usbDevice = reader.FindReader();
-
+                serialDevice = reader.FindReader();
             }
         }
         void readerBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

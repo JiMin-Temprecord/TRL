@@ -9,7 +9,6 @@ namespace TRL
             PortName = ftdiID;
             UsbDevice = usbDevice;
         }
-
         public string PortName { get; }
         public UsbDevice UsbDevice { get; }
 
