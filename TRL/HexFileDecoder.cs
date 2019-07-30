@@ -235,7 +235,6 @@ namespace TRL
 
             return loggerVariable;
         }
-
         void AssignChannelValues(ChannelConfig Channel, int i)
         {
             Channel.PresetLowerLimit = lowerLimit[i];
@@ -276,18 +275,16 @@ namespace TRL
                 Channel.Unit = DecodeConstant.Percentage;
             }
         }
-
-        //FIX THIS
         byte[] ReadHex(string[] currentinfo, String[] hexStringArray)
         {
             var dataFromHex = string.Empty;
-            var diff = 99;
+            var startIndex = 99;
             var i = 0;
 
-            while (diff > 58 || diff < 0)
+            while (startIndex > 58 || startIndex < 0)
             {
                 var currentAddress = hexStringArray[i].Substring(0, 6);
-                diff = Convert.ToInt32(currentinfo[0], 16) - Convert.ToInt32(currentAddress, 16);
+                startIndex = Convert.ToInt32(currentinfo[0], 16) - Convert.ToInt32(currentAddress, 16);
                 i++;
 
                 if (i == hexStringArray.Length - 1)
@@ -300,36 +297,36 @@ namespace TRL
             var address = hexStringArray[i].Substring(0, 6);
             var data = hexStringArray[i].Substring(7, hexStringArray[i].Length - 7);
 
-            var infolength = Convert.ToInt32(currentinfo[1]);
+            var lengthofData = Convert.ToInt32(currentinfo[1]);
 
-            if (infolength == 32768) // if we are reading DATA
+            if (lengthofData == 32768) // if we are reading DATA
             {
-                infolength = dataAddress;
+                lengthofData = dataAddress;
 
                 if (loopOverwriteStartAddress > 0)
-                    infolength = G4MemorySize + 1;
+                    lengthofData = G4MemorySize + 1;
             }
 
-            if (infolength > 58)
+            if (lengthofData > 58)
             {
-                int readinfo = 58 - diff;
-                while (infolength > 0)
+                int lengthToRead = 58 - startIndex;
+                while (lengthofData > 0)
                 {
-                    dataFromHex += data.Substring(diff * 2, readinfo * 2);
+                    dataFromHex += data.Substring(startIndex * 2, lengthToRead * 2);
                     i++;
                     if (hexStringArray[i] != null && hexStringArray[i].Length != 0)
                     {
                         data = hexStringArray[i].Substring(7, hexStringArray[i].Length - 7);
-                        infolength = infolength - readinfo;
-                        diff = 0;
+                        lengthofData = lengthofData - lengthToRead;
+                        startIndex = 0;
 
-                        if (infolength > (data.Length / 2))
+                        if (lengthofData > (data.Length / 2))
                         {
-                            readinfo = data.Length / 2;
+                            lengthToRead = data.Length / 2;
                         }
                         else
                         {
-                            readinfo = infolength;
+                            lengthToRead = lengthofData;
                         }
                     }
                     else { break; }
@@ -343,21 +340,23 @@ namespace TRL
             }
             else
             {
-                if (data.Length < diff * 2 + infolength * 2)
+                //check if the total length of data that needs to be read is available
+                if (data.Length < startIndex * 2 + lengthofData * 2)
                 {
-                    var readNextLine = (diff * 2 + infolength * 2) - 58 * 2;
-                    dataFromHex = data.Substring(diff * 2, infolength * 2 - readNextLine);
+                    var readNextLine = (startIndex * 2 + lengthofData * 2) - 58 * 2;
+                    dataFromHex = data.Substring(startIndex * 2, lengthofData * 2 - readNextLine);
                     data = hexStringArray[i].Substring(7, hexStringArray[i].Length - 7);
                     dataFromHex += data.Substring(0, readNextLine);
                 }
+                //if not read what you need and continue to the next line.
                 else
                 {
-                    dataFromHex = data.Substring(diff * 2, infolength * 2);
+                    dataFromHex = data.Substring(startIndex * 2, lengthofData * 2);
                 }
 
-                var totallength = dataFromHex.Length;
-                var bytes = new byte[totallength / 2];
-                for (int j = 0; j < totallength; j += 2)
+                var totalDataLength = dataFromHex.Length;
+                var bytes = new byte[totalDataLength / 2];
+                for (int j = 0; j < totalDataLength; j += 2)
                     bytes[j / 2] = Convert.ToByte(dataFromHex.Substring(j, 2), 16);
                 return bytes;
             }
@@ -776,23 +775,19 @@ namespace TRL
         void DecodeDeltaData(byte[] decodeByte)
         {
             var memoryStart = loopOverwriteStartAddress;
-            Debug.WriteLine("memoryStart : " + memoryStart);
             if (memoryStart > 0)
             {
                 memoryStart = FindStartSentinel(memoryStart - 1, 16, decodeByte);
-                Debug.WriteLine("memoryStart : " + memoryStart);
                 memoryStart++;
-                Debug.WriteLine("memoryStart : " + memoryStart);
             }
             if (decodeByte.Length > 0)
             {
                 if (CheckStartSentinel(decodeByte, memoryStart))
                 {
-                    Debug.WriteLine("memoryStart : " + memoryStart);
                     memoryStart += ((6 * numberChannel) + 1);
                     memoryStart &= G4MemorySize;
                     memoryStart = FindStartSentinel(memoryStart, (8 * numberChannel), decodeByte);
-                    Debug.WriteLine("memoryStart : " + memoryStart);
+                    memoryStart = FindStartSentinel(memoryStart, (8 * numberChannel), decodeByte);
                     if (memoryStart != 0xFFFF)
                     {
                         memoryStart++;
@@ -879,13 +874,11 @@ namespace TRL
         int FindStartSentinel(int memoryStart, int max, byte[] decodeByte)
         {
             var maxI = (memoryStart + max+20);
-            Debug.WriteLine("memoryStart1 : " + maxI);
 
             if (maxI > memoryStart)
             {
                 while (maxI > memoryStart)
                 {
-                    Debug.WriteLine("memoryStart2 : " + decodeByte[memoryStart].ToString("X02"));
                     if ((decodeByte[memoryStart] == 0x7F) || (decodeByte[memoryStart] == 0xff)) //represents start and stop bytes
                     {
                         return memoryStart;
@@ -901,7 +894,6 @@ namespace TRL
                 {
                     if ((decodeByte[memoryStart] == 0x7f) || (decodeByte[memoryStart] & 0xff) == 0xff) // ????????
                     {
-                        Debug.WriteLine("memoryStart3 : " + memoryStart);
                         return memoryStart;
                     }
                     memoryStart++;
@@ -980,7 +972,6 @@ namespace TRL
             double Limit = ((((decodeByte[1] & 0xFF) << 8) | (decodeByte[0] & 0xFF)) / 10);
             return Limit.ToString();
         }
-
         string MonT2Model(byte[] decodeByte)
         {
             switch (decodeByte[0])
@@ -1013,7 +1004,6 @@ namespace TRL
                     return "Unknown";
             }
         }
-
         string MonT2SampleNum(byte[] decodeByte)
         {
             int sampleNumber = ((((decodeByte[3]) & 0xFFFFFF) << 24) | (((decodeByte[2]) & 0xFFFF) << 16) | (((decodeByte[1]) & 0xFF) << 8) | (decodeByte[0] & 0xFF));
@@ -1030,7 +1020,6 @@ namespace TRL
 
             return sampleNumber.ToString();
         }
-
         void MonT2ValueDecode(byte[] decodeByte)
         {
             var ch1List = new List<double>();
@@ -1210,7 +1199,6 @@ namespace TRL
                 Tag = tagList;
             }
         }
-
         string SampleNumberLoggedMonT(byte[] decodeByte)
         {
             if (loopOverwrite)
@@ -1221,7 +1209,6 @@ namespace TRL
                 return samplenumber.ToString();
             }
         }
-
         async Task SensorDecoding(byte[] decodeByte)
         {
             var offset = 11;
@@ -1294,7 +1281,7 @@ namespace TRL
                 int month = (((decodeByte[1] & 0xff) >> 4) - 1);
                 var dateTime = new DateTime(year, month, decodeByte[2], decodeByte[3], decodeByte[4], decodeByte[5]);
 
-                Console.WriteLine("date time : " + dateTime);
+                //Console.WriteLine("date time : " + dateTime);
 
                 if (!notOverflown && loopOverwrite)
                 {

@@ -14,31 +14,42 @@ namespace TRL
 {
     class Communication
     {
-
         int recoverCount = 0;
         int length = 0;
         bool readFull = true;
         readonly int maxlenreading = 58;
         List<byte> recievemsg;
         bool MonT2Overflown = false;
-
-        public async Task<StringBuilder> FindLogger(SerialDevice usbDevice, Reader reader)
+        
+        public async Task<StringBuilder>FindLogger(Object communicationDevice, Reader reader)
         {
+            SerialDevice serialDevice = reader.GetSerialDevice();
+            UsbDevice usbDevice = reader.GetUSBDevice();
+            
             var msg = new StringBuilder();
 
             while (msg.Length < 3)
             {
                 if (reader.UsbExist)
                 {
-                    await WriteBytes(new WakeUpByteWritter(), usbDevice, reader);
-                    Task.Delay(70).Wait(); //65
-                    msg = await ReadBytes(usbDevice, reader);
+                    if (usbDevice != null)
+                    {
+                        await WriteBytes(new WakeUpByteWritter(), usbDevice, reader);
+                        Task.Delay(70).Wait(); 
+                        msg = await ReadBytes(usbDevice, reader);
+                    }
+                    else if (serialDevice != null)
+                    {
+                        await WriteBytes(new WakeUpByteWritter(), serialDevice, reader);
+                        msg = await ReadBytes(serialDevice, reader);
+                    }
+
                     if (msg.Length > 3 && (msg.ToString().Substring(0, 4) == "0004" || msg.ToString().Substring(0, 4) == "001d"))
                         break;
                     else
                     {
                         msg.Clear();
-                        System.Threading.Thread.Sleep(1000);
+                        Thread.Sleep(1000);
                     }
                 }
                 else
@@ -49,11 +60,18 @@ namespace TRL
             }
             return msg;
         }
-        public async Task<bool> GenerateHexFile(SerialDevice usbDevice, LoggerInformation loggerInformation, Reader reader)
+        public async Task<bool>GenerateHexFile(Object communicationDevice, LoggerInformation loggerInformation, Reader reader)
         {
+            SerialDevice serialDevice = reader.GetSerialDevice();
+            UsbDevice usbDevice = reader.GetUSBDevice();
+
             var Hexes = new List<Hex>();
-            if (usbDevice != null)
-                Hexes = await ReadLogger(usbDevice, reader, loggerInformation, Hexes);
+
+             if(usbDevice != null)
+                    Hexes = await ReadLogger(usbDevice, reader, loggerInformation, Hexes);
+
+            else if(serialDevice != null)
+                Hexes = await ReadLogger(serialDevice, reader, loggerInformation, Hexes);
 
             if (Hexes.Count > 0)
             {
@@ -69,19 +87,16 @@ namespace TRL
 
             return true;
         }
-        async Task<List<Hex>> ReadLogger(SerialDevice usbDevice, Reader reader, LoggerInformation loggerInformation, List<Hex> Hexes)
+        async Task<List<Hex>>ReadLogger(SerialDevice serialDevice, Reader reader, LoggerInformation loggerInformation, List<Hex> Hexes)
         {
-           // var readPipe = usbDevice.DefaultInterface.BulkInPipes[0];
-            var stream = usbDevice.InputStream;
+            var ReaderAvailable = true;
 
             recoverCount = 0;
-            await WriteBytes(new WakeUpByteWritter(), usbDevice, reader);
-            Task.Delay(70).Wait(); //65
-            var currentAddress = await ReadBytesWakeUp(usbDevice, reader, loggerInformation, recievemsg, Hexes);
-            await WriteBytes(new SetReadByteWritter(loggerInformation.LoggerType), usbDevice, reader);
-            Task.Delay(70).Wait(); // can never be 100
-            if (reader.UsbExist) await ReadBytesSetRead(usbDevice, reader, currentAddress, loggerInformation, Hexes);
-            while (reader.UsbExist && currentAddress != null && (currentAddress.MemoryNumber <= loggerInformation.MaxMemory))
+            await WriteBytes(new WakeUpByteWritter(), serialDevice, reader);
+            var currentAddress = await ReadBytesWakeUp(serialDevice, reader, loggerInformation, recievemsg, Hexes);
+            ReaderAvailable = await WriteBytes(new SetReadByteWritter(loggerInformation.LoggerType), serialDevice, reader);
+            if (readFull) await ReadBytesSetRead(serialDevice, reader, currentAddress, loggerInformation, Hexes);
+            while (ReaderAvailable && currentAddress != null && (currentAddress.MemoryNumber <= loggerInformation.MaxMemory))
             {
                 if (readFull == true && (length >= (loggerInformation.MemoryMax[currentAddress.MemoryNumber] - currentAddress.MemoryAddress)))
                 {
@@ -92,10 +107,54 @@ namespace TRL
                     currentAddress.LengthLSB = (byte)(length & 0xff);
                 }
 
-                await WriteBytes(new ReadLoggerByteWritter(currentAddress,loggerInformation.LoggerType), usbDevice, reader);
+                ReaderAvailable = await WriteBytes(new ReadLoggerByteWritter(currentAddress,loggerInformation.LoggerType), serialDevice, reader);
+                readFull = await ReadBytesReadLogger(serialDevice, reader, loggerInformation.LoggerType, currentAddress, Hexes);
+
+                if (readFull == true)
+                {
+                    currentAddress = GetNextAddress(currentAddress, loggerInformation);
+                }
+
+                if (recoverCount == 20)
+                {
+                    Hexes.Clear();
+                    return Hexes;
+                }
+            }
+
+            if (currentAddress == null)
+            {
+                Hexes.Clear();
+                return Hexes;
+            }
+
+            return Hexes;
+        }
+        async Task<List<Hex>> ReadLogger(UsbDevice usbDevice, Reader reader, LoggerInformation loggerInformation, List<Hex> Hexes)
+        {
+            var ReaderAvailable = true;
+
+            recoverCount = 0;
+            await WriteBytes(new WakeUpByteWritter(), usbDevice, reader);
+            Task.Delay(70).Wait(); 
+            var currentAddress = await ReadBytesWakeUp(usbDevice, reader, loggerInformation, recievemsg, Hexes);
+            ReaderAvailable = await WriteBytes(new SetReadByteWritter(loggerInformation.LoggerType), usbDevice, reader);
+            Task.Delay(70).Wait(); 
+            if (readFull) await ReadBytesSetRead(usbDevice, reader, currentAddress, loggerInformation, Hexes);
+            while (ReaderAvailable && currentAddress != null && (currentAddress.MemoryNumber <= loggerInformation.MaxMemory))
+            {
+                if (readFull == true && (length >= (loggerInformation.MemoryMax[currentAddress.MemoryNumber] - currentAddress.MemoryAddress)))
+                {
+                    recoverCount = 0;
+                    length = loggerInformation.MemoryMax[currentAddress.MemoryNumber] - currentAddress.MemoryAddress;
+                    currentAddress.MemoryAddress = loggerInformation.MemoryMax[currentAddress.MemoryNumber];
+                    currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
+                    currentAddress.LengthLSB = (byte)(length & 0xff);
+                }
+
+                ReaderAvailable = await WriteBytes(new ReadLoggerByteWritter(currentAddress, loggerInformation.LoggerType), usbDevice, reader);
                 Task.Delay(70).Wait();
                 readFull = await ReadBytesReadLogger(usbDevice, reader, loggerInformation.LoggerType, currentAddress, Hexes);
-
                 if (readFull == true)
                 {
                     currentAddress = GetNextAddress(currentAddress, loggerInformation);
@@ -120,32 +179,32 @@ namespace TRL
         {
             var msg = new StringBuilder();
             recievemsg = new List<byte>();
-            
-            UInt32 bytesRead = 0;
             var stream = serialDevice.InputStream;
             var readerStream = new DataReader(stream);
 
             try
             {
-                var timeoutSource = new CancellationTokenSource(140); // 1000 ms
-                var byteData = await readerStream.LoadAsync(70).AsTask(timeoutSource.Token);
+                var timeoutSource = new CancellationTokenSource(100); // 1000 ms
+                var byteData = await readerStream.LoadAsync(70);//.AsTask(timeoutSource.Token);
                 var bufferData = readerStream.ReadBuffer(byteData);
                 if (bufferData.GetByte(0) == 0x00)
                 {
                     for (uint i = 0; i < bufferData.Length; i++)
                         recievemsg.Add(bufferData.GetByte(i));
                 }
-                else
-                {
-                    recoverCount++;
-                    Debug.WriteLine("recoverCount : " + recoverCount);
-                    if (recoverCount == 20)
-                        return msg.Clear();
-                }
+            }
+            catch (TaskCanceledException e)
+            {
+                readFull = false;
+                recoverCount++;
+                Debug.WriteLine("recoverCount : " + recoverCount);
+                if (recoverCount == 20)
+                    return msg.Clear();
             }
             catch (Exception e)
             {
-                if (e is TimeoutException)
+                readFull = false;
+                if (e is TimeoutException || e is NotImplementedException)
                 {
                     recoverCount++;
                     Debug.WriteLine("recoverCount : " + recoverCount);
@@ -159,37 +218,11 @@ namespace TRL
                     return msg.Append("Exception");
                 }
             }
-
-            /*try
+            finally
             {
-
-                if (reader.UsbExist)
-                {
-                    IBuffer buffer = readerStream.ReadBuffer(bytesRead);
-                    //readerStream.DetachBuffer();
-                    if (buffer.Length > 2 && buffer.GetByte(0) == 0x00)
-                    {
-                        for (uint i = 0; i < buffer.Length; i++)
-                            recievemsg.Add(buffer.GetByte(i));
-                    }
-                    else
-                    {
-                        recoverCount++;
-                        Debug.WriteLine("recoverCount : " + recoverCount);
-                        if (recoverCount == 20)
-                            return msg.Clear();
-                    }
-                }
+                readerStream.DetachStream();
+                readerStream.Dispose();
             }
-            catch (SystemException e)
-            {
-                Debug.WriteLine(e);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }*/
-            readerStream.DetachBuffer();
             recievemsg.Add(0x0d);
             recievemsg = RemoveEscChar(recievemsg);
 
@@ -246,7 +279,7 @@ namespace TRL
                         if (buffer.Length > 2 && buffer.GetByte(2) == 0x00)
                         {
                             //Filtering out the 0x00 at index 0 and 0x60 at index 1 of the FTDI reply 
-                            for (uint i = 0; i < buffer.Length; i++)
+                            for (uint i = 2; i < buffer.Length; i++)
                             {
                                 recievemsg.Add(buffer.GetByte(i));
                             }
@@ -287,12 +320,365 @@ namespace TRL
             Debug.WriteLine("MSG : " + msg);
             return msg;
         }
-        async Task<AddressSection> ReadBytesWakeUp(SerialDevice usbDevice, Reader reader, LoggerInformation loggerInformation, List<byte> messageReceived, List<Hex> hexes)
+        async Task<AddressSection> ReadBytesWakeUp(SerialDevice serialDevice, Reader reader, LoggerInformation loggerInformation, List<byte> messageReceived, List<Hex> hexes)
+        {
+            SetLoggerInformation(messageReceived, loggerInformation);
+            return await SetCurrentAddress(serialDevice, reader, loggerInformation, hexes);
+        }
+        async Task<AddressSection> ReadBytesWakeUp(UsbDevice usbDevice, Reader reader, LoggerInformation loggerInformation, List<byte> messageReceived, List<Hex> hexes)
         {
             SetLoggerInformation(messageReceived, loggerInformation);
             return await SetCurrentAddress(usbDevice, reader, loggerInformation, hexes);
         }
+        async Task ReadBytesSetRead(SerialDevice serialDevice, Reader reader, AddressSection currentAddress, LoggerInformation loggerInformation, List<Hex> hexes)
+        {
+            var msg = await ReadBytes(serialDevice, reader);
+            length = maxlenreading;
 
+            try
+            {
+                switch (loggerInformation.LoggerType)
+                {
+                    //MonT2
+                    case 1:
+                        loggerInformation.MemoryStart[8] = 0x0000;
+                        loggerInformation.MemoryMax[8] = ((recievemsg[13] << 8 | (recievemsg[12])) * 2);
+                        if (MonT2Overflown)
+                            loggerInformation.MemoryMax[8] = 0x81c0;
+                        break;
+                    //MonT
+                    case 3:
+                        loggerInformation.MemoryStart[0] = 0x0000;
+                        loggerInformation.MemoryMax[0] = 0x2000;
+                        break;
+                    //G4
+                    case 6:
+                        loggerInformation.MemoryStart[4] = (recievemsg[loggerInformation.RequestMemoryStartPointer + 1]) << 8 | (recievemsg[loggerInformation.RequestMemoryStartPointer]);
+                        loggerInformation.MemoryMax[4] = (recievemsg[loggerInformation.RequestMemoryMaxPointer + 1]) << 8 | (recievemsg[loggerInformation.RequestMemoryMaxPointer]);
+
+                        if (loggerInformation.MemoryStart[4] > loggerInformation.MemoryMax[4])
+                        {
+                            hexes.Add(new Hex("FD0000", loggerInformation.MemoryStart[4].ToString("X04")));
+                            loggerInformation.MemoryStart[4] = 0x0000;
+                            loggerInformation.MemoryMax[4] = 0x8000;
+                        }
+                        else
+                        {
+                            hexes.Add(new Hex("FD0000", "0000"));
+                        }
+
+                        if (loggerInformation.MemoryMax[4] < 80)
+                        {
+                            loggerInformation.MemoryMax[4] = 80;
+                        }
+                        break;
+                }
+                currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
+                currentAddress.LengthLSB = (byte)(length & 0xff);
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+        async Task ReadBytesSetRead(UsbDevice usbDevice, Reader reader, AddressSection currentAddress, LoggerInformation loggerInformation, List<Hex> hexes)
+        {
+            var msg = await ReadBytes(usbDevice, reader);
+            length = maxlenreading;
+
+            try
+            {
+                switch (loggerInformation.LoggerType)
+                {
+                    //MonT2
+                    case 1:
+                        loggerInformation.MemoryStart[8] = 0x0000;
+                        loggerInformation.MemoryMax[8] = ((recievemsg[13] << 8 | (recievemsg[12])) * 2);
+                        if (MonT2Overflown)
+                            loggerInformation.MemoryMax[8] = 0x81c0;
+                        break;
+                    //MonT
+                    case 3:
+                        loggerInformation.MemoryStart[0] = 0x0000;
+                        loggerInformation.MemoryMax[0] = 0x2000;
+                        break;
+                    //G4
+                    case 6:
+                        loggerInformation.MemoryStart[4] = (recievemsg[loggerInformation.RequestMemoryStartPointer + 1]) << 8 | (recievemsg[loggerInformation.RequestMemoryStartPointer]);
+                        loggerInformation.MemoryMax[4] = (recievemsg[loggerInformation.RequestMemoryMaxPointer + 1]) << 8 | (recievemsg[loggerInformation.RequestMemoryMaxPointer]);
+
+                        if (loggerInformation.MemoryStart[4] > loggerInformation.MemoryMax[4])
+                        {
+                            hexes.Add(new Hex("FD0000", loggerInformation.MemoryStart[4].ToString("X04")));
+                            loggerInformation.MemoryStart[4] = 0x0000;
+                            loggerInformation.MemoryMax[4] = 0x8000;
+                        }
+                        else
+                        {
+                            hexes.Add(new Hex("FD0000", "0000"));
+                        }
+
+                        if (loggerInformation.MemoryMax[4] < 80)
+                        {
+                            loggerInformation.MemoryMax[4] = 80;
+                        }
+                        break;
+                }
+                currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
+                currentAddress.LengthLSB = (byte)(length & 0xff);
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+        async Task<bool> ReadBytesReadLogger(SerialDevice serialDevice, Reader reader, int loggerType, AddressSection currentAddress, List<Hex> Hexes)
+        {
+            length = maxlenreading;
+            var msg = await ReadBytes(serialDevice, reader);
+            var addressRead = "0" + currentAddress.MemoryNumber + currentAddress.MemoryAddMSB.ToString("x02") + currentAddress.MemoryAddLSB.ToString("x02");
+
+            if ((recievemsg.Count > 8) && (recievemsg[0] == 0x00))
+            {
+                var finalmsg = string.Empty;
+
+                if (msg.Length > 124)
+                {
+                    if (loggerType == 1)
+                    {
+                        finalmsg = msg.ToString(12, 116);
+                    }
+                    else
+                    {
+                        finalmsg = msg.ToString(2, 116);
+                    }
+                }
+                else if (msg.Length < (currentAddress.LengthLSB * 2) + 6 && currentAddress.MemoryNumber == 4)
+                {
+                    recoverCount++;
+                    return false;
+                }
+                else
+                {
+                    if (loggerType == 1)
+                        finalmsg = msg.ToString(12, msg.Length - 8);
+                    else
+                        finalmsg = msg.ToString(2, msg.Length - 8);
+                }
+                Hexes.Add(new Hex(addressRead, finalmsg));
+            }
+            else if (loggerType == 1 && currentAddress.MemoryNumber != 8)
+                return true;
+            else
+            {
+                return false;
+            }
+            currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
+            currentAddress.LengthLSB = (byte)(length & 0xff);
+            return true;
+        }
+        async Task<bool> ReadBytesReadLogger(UsbDevice usbDevice, Reader reader, int loggerType, AddressSection currentAddress, List<Hex> Hexes)
+        {
+            length = maxlenreading;
+            var msg = await ReadBytes(usbDevice, reader);
+            var addressRead = "0" + currentAddress.MemoryNumber + currentAddress.MemoryAddMSB.ToString("x02") + currentAddress.MemoryAddLSB.ToString("x02");
+
+            if ((recievemsg.Count > 8) && (recievemsg[0] == 0x00)) // 0x00 ACK
+            {
+                var finalmsg = string.Empty;
+
+                if (msg.Length > 124)
+                {
+                    if (loggerType == 1)
+                    {
+                        var index = msg.ToString().IndexOf("0160");
+                        finalmsg = msg.ToString(12, index - 12);
+                        finalmsg += msg.ToString(index + 4, 116 - finalmsg.Length);
+                    }
+                    else
+                    {
+                        finalmsg = msg.ToString(2, 116);
+                    }
+                }
+                else if (msg.Length < (currentAddress.LengthLSB * 2) + 6 && currentAddress.MemoryNumber == 4)
+                {
+                    recoverCount++;
+                    return false;
+                }
+                else
+                {
+                    if (loggerType == 1)
+                        finalmsg = msg.ToString(12, msg.Length - 8);
+                    else
+                        finalmsg = msg.ToString(2, msg.Length - 8);
+                }
+                Hexes.Add(new Hex(addressRead, finalmsg));
+            }
+            else if (loggerType == 1 && currentAddress.MemoryNumber != 8)
+                return true;
+            else
+            {
+                return false;
+            }
+            currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
+            currentAddress.LengthLSB = (byte)(length & 0xff);
+            return true;
+        }
+        async Task<bool> WriteBytes(IByteWriter byteWriter, SerialDevice serialDevice, Reader reader)
+        {
+            var sendMessage = new byte[11];
+            var stream = serialDevice.OutputStream;
+            var writer = new DataWriter(stream);
+
+            sendMessage = byteWriter.WriteBytes(sendMessage);
+
+            for (int i = 0; i < sendMessage.Length; i++)
+                Debug.Write(sendMessage[i].ToString("x02") + "-");
+            Debug.WriteLine("");
+
+            writer.WriteBytes(sendMessage);
+
+            try
+            {
+                if (reader.UsbExist)
+                {
+                    await writer.StoreAsync();
+                    writer.DetachStream();
+                    writer.Dispose();
+                }
+            }
+            catch (System.Runtime.InteropServices.SEHException e)
+            {
+                await serialDevice.OutputStream.FlushAsync();
+                writer.DetachStream();
+                writer.Dispose();
+                return false;
+            }
+            catch (Exception e)
+            {
+
+                if (e is IOException || e is InvalidOperationException)
+                {
+                    await serialDevice.OutputStream.FlushAsync();
+                    writer.DetachStream();
+                    writer.Dispose();
+                    return false;
+                }
+            }
+            return true;
+
+        }
+        async Task<bool> WriteBytes(IByteWriter byteWriter, UsbDevice usbDevice, Reader reader)
+        {
+            var sendMessage = new byte[11];
+            var writePipe = usbDevice.DefaultInterface.BulkOutPipes[0];
+            var stream = writePipe.OutputStream;
+            var writer = new DataWriter(stream);
+
+            sendMessage = byteWriter.WriteBytes(sendMessage);
+
+            for (int i = 0; i < sendMessage.Length; i++)
+                Debug.Write(sendMessage[i].ToString("x02") + "-");
+            Debug.WriteLine("");
+
+            writer.WriteBytes(sendMessage);
+
+            try
+            {
+                if (reader.UsbExist)
+                {
+                    await writer.StoreAsync();
+                    writer.DetachStream();
+                    writer.Dispose();
+                }
+            }
+            catch (System.Runtime.InteropServices.SEHException e)
+            {
+                await writePipe.OutputStream.FlushAsync();
+                writer.DetachStream();
+                writer.Dispose();
+                return false;
+            }
+            catch (Exception e)
+            {
+
+                if (e is IOException || e is InvalidOperationException)
+                {
+                    await writePipe.OutputStream.FlushAsync();
+                    writer.DetachStream();
+                    writer.Dispose();
+                    return false;
+                }
+            }
+            return true;
+
+        }
+        async Task<AddressSection> SetCurrentAddress(SerialDevice serialDevice, Reader reader, LoggerInformation loggerInformation, List<Hex> hexes)
+        {
+            length = maxlenreading;
+            var msg = await ReadBytes(serialDevice, reader);
+
+            var timenow = "0000000000000000";
+            var time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000;
+            var hextime = time.ToString("x02");
+            timenow = timenow.Substring(0, (timenow.Length - hextime.Length)) + hextime;
+            hexes.Add(new Hex("FF0000", timenow));
+
+            if (msg.Length > 8)
+            {
+                if (loggerInformation.LoggerType == 1)
+                {
+                    hexes.Add(new Hex("FE0000", msg.ToString(0, (msg.Length - 6))));
+                    return new AddressSection(0, 0, 0, 0x00, 0x00, 0);
+                }
+                else
+                {
+                    hexes.Add(new Hex("FE0000", msg.ToString(0, (msg.Length - 6))));
+                    var memoryAddress = (recievemsg[loggerInformation.MemoryHeaderPointer + 1] & 0xFF) << 8 | (recievemsg[loggerInformation.MemoryHeaderPointer] & 0xFF);
+                    var memoryAddMSB = recievemsg[loggerInformation.MemoryHeaderPointer + 1];
+                    var memoryAddLSB = recievemsg[loggerInformation.MemoryHeaderPointer];
+                    var lengthMSB = (byte)((length >> 8) & 0xFF);
+                    var lengthLSB = (byte)(length & 0xFF);
+
+                    return new AddressSection(lengthLSB, lengthMSB, 0, memoryAddLSB, memoryAddMSB, memoryAddress);
+                }
+            }
+
+            return null;
+        }
+        async Task<AddressSection> SetCurrentAddress(UsbDevice usbDevice, Reader reader, LoggerInformation loggerInformation, List<Hex> hexes)
+        {
+            length = maxlenreading;
+            var msg = await ReadBytes(usbDevice, reader);
+
+            var timenow = "0000000000000000";
+            var time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000;
+            var hextime = time.ToString("x02");
+            timenow = timenow.Substring(0, (timenow.Length - hextime.Length)) + hextime;
+            hexes.Add(new Hex("FF0000", timenow));
+
+            if (msg.Length > 8)
+            {
+                if (loggerInformation.LoggerType == 1)
+                {
+                    hexes.Add(new Hex("FE0000", msg.ToString(0, (msg.Length - 6))));
+                    return new AddressSection(0, 0, 0, 0x00, 0x00, 0);
+                }
+                else
+                {
+                    hexes.Add(new Hex("FE0000", msg.ToString(0, (msg.Length - 6))));
+                    var memoryAddress = (recievemsg[loggerInformation.MemoryHeaderPointer + 1] & 0xFF) << 8 | (recievemsg[loggerInformation.MemoryHeaderPointer] & 0xFF);
+                    var memoryAddMSB = recievemsg[loggerInformation.MemoryHeaderPointer + 1];
+                    var memoryAddLSB = recievemsg[loggerInformation.MemoryHeaderPointer];
+                    var lengthMSB = (byte)((length >> 8) & 0xFF);
+                    var lengthLSB = (byte)(length & 0xFF);
+
+                    return new AddressSection(lengthLSB, lengthMSB, 0, memoryAddLSB, memoryAddMSB, memoryAddress);
+                }
+            }
+
+            return null;
+        }
         void SetLoggerInformation(List<byte> messageReceived, LoggerInformation loggerInformation)
         {
             byte[] serial = { messageReceived[5], messageReceived[6], messageReceived[7], messageReceived[8] };
@@ -338,179 +724,6 @@ namespace TRL
                     loggerInformation.RequestMemoryMaxPointer = 1;
                     break;
             }
-        }
-        async Task<AddressSection> SetCurrentAddress(SerialDevice usbDevice, Reader reader, LoggerInformation loggerInformation, List<Hex> hexes)
-        {
-            length = maxlenreading;
-            var msg = await ReadBytes(usbDevice, reader);
-
-            var timenow = "0000000000000000";
-            var time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000;
-            var hextime = time.ToString("x02");
-            timenow = timenow.Substring(0, (timenow.Length - hextime.Length)) + hextime;
-            hexes.Add(new Hex("FF0000", timenow));
-
-            if (msg.Length > 8)
-            {
-                if (loggerInformation.LoggerType == 1)
-                {
-                    hexes.Add(new Hex("FE0000", msg.ToString(0, (msg.Length - 6))));
-                    return new AddressSection(0, 0, 0, 0x00, 0x00, 0);
-                }
-                else
-                {
-                    hexes.Add(new Hex("FE0000", msg.ToString(0, (msg.Length - 6))));
-                    var memoryAddress = (recievemsg[loggerInformation.MemoryHeaderPointer + 1] & 0xFF) << 8 | (recievemsg[loggerInformation.MemoryHeaderPointer] & 0xFF);
-                    var memoryAddMSB = recievemsg[loggerInformation.MemoryHeaderPointer + 1];
-                    var memoryAddLSB = recievemsg[loggerInformation.MemoryHeaderPointer];
-                    var lengthMSB = (byte)((length >> 8) & 0xFF);
-                    var lengthLSB = (byte)(length & 0xFF);
-
-                    return new AddressSection(lengthLSB, lengthMSB, 0, memoryAddLSB, memoryAddMSB, memoryAddress);
-                }
-            }
-
-            return null;
-        }
-        async Task ReadBytesSetRead(SerialDevice usbDevice, Reader reader, AddressSection currentAddress, LoggerInformation loggerInformation, List<Hex> hexes)
-        {
-            var msg = await ReadBytes(usbDevice, reader);
-            length = maxlenreading;
-
-            try
-            {
-                switch (loggerInformation.LoggerType)
-                {
-                    //MonT2
-                    case 1:
-                        loggerInformation.MemoryStart[8] = 0x0000;
-                        loggerInformation.MemoryMax[8] = ((recievemsg[13] << 8 | (recievemsg[12])) * 2);
-                        if(MonT2Overflown)
-                            loggerInformation.MemoryMax[8] = 0x81c0;
-                        break;
-                    //MonT
-                    case 3:
-                        loggerInformation.MemoryStart[0] = 0x0000;
-                        loggerInformation.MemoryMax[0] = 0x2000;
-                        break;
-                    //G4
-                    case 6:
-                        loggerInformation.MemoryStart[4] = (recievemsg[loggerInformation.RequestMemoryStartPointer + 1]) << 8 | (recievemsg[loggerInformation.RequestMemoryStartPointer]);
-                        loggerInformation.MemoryMax[4] = (recievemsg[loggerInformation.RequestMemoryMaxPointer + 1]) << 8 | (recievemsg[loggerInformation.RequestMemoryMaxPointer]);
-
-                        if (loggerInformation.MemoryStart[4] > loggerInformation.MemoryMax[4])
-                        {
-                            hexes.Add(new Hex("FD0000", loggerInformation.MemoryStart[4].ToString("X04")));
-                            loggerInformation.MemoryStart[4] = 0x0000;
-                            loggerInformation.MemoryMax[4] = 0x8000;
-                        }
-                        else
-                        {
-                            hexes.Add(new Hex("FD0000", "0000"));
-                        }
-
-                        if (loggerInformation.MemoryMax[4] < 80)
-                        {
-                            loggerInformation.MemoryMax[4] = 80;
-                        }
-                        break;
-                }
-                currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
-                currentAddress.LengthLSB = (byte)(length & 0xff);
-            }
-            catch (NullReferenceException e)
-            {
-                Debug.WriteLine(e);
-            }
-        }
-        async Task<bool> ReadBytesReadLogger(SerialDevice usbDevice, Reader reader, int loggerType, AddressSection currentAddress, List<Hex> Hexes)
-        {
-            length = maxlenreading;
-            var msg = await ReadBytes(usbDevice, reader);
-            var addressRead = "0" + currentAddress.MemoryNumber + currentAddress.MemoryAddMSB.ToString("x02") + currentAddress.MemoryAddLSB.ToString("x02");
-
-            if ((recievemsg.Count > 8) && (recievemsg[0] == 0x00))
-            {
-                var finalmsg = string.Empty;
-
-                if (msg.Length > 124)
-                {
-                    if (loggerType == 1)
-                    {
-                        finalmsg = msg.ToString(2, 116);
-                        /*var index = msg.ToString().IndexOf("0160");
-                        finalmsg = msg.ToString(12, index - 12);
-                        finalmsg += msg.ToString(index + 4, 116 - finalmsg.Length);*/
-                    }
-                    else
-                    {
-                        finalmsg = msg.ToString(2, 116);
-                    }
-                }
-                else if (msg.Length < (currentAddress.LengthLSB * 2) + 6 && currentAddress.MemoryNumber == 4)
-                    return false;
-
-                else
-                {
-                    if (loggerType == 1)
-                        finalmsg = msg.ToString(12, msg.Length - 8);
-                    else
-                        finalmsg = msg.ToString(2, msg.Length - 8);
-                }
-                Hexes.Add(new Hex(addressRead, finalmsg));
-            }
-            else if(loggerType != 1)
-                return false;
-
-            currentAddress.LengthMSB = (byte)((length >> 8) & 0xff);
-            currentAddress.LengthLSB = (byte)(length & 0xff);
-            return true;
-        }
-        async Task WriteBytes(IByteWriter byteWriter, SerialDevice usbDevice, Reader reader)
-        {
-            var sendMessage = new byte[11];
-            //var writePipe = usbDevice.DefaultInterface.BulkOutPipes[0];
-            var stream = usbDevice.OutputStream;
-            var writer = new DataWriter(stream);
-
-            sendMessage = byteWriter.WriteBytes(sendMessage);
-
-            for (int i = 0; i < sendMessage.Length; i++)
-                Debug.Write(sendMessage[i].ToString("x02") + "-");
-            Debug.WriteLine("");
-
-            try
-            {
-                if (reader.UsbExist)
-                {
-                    writer.WriteBytes(sendMessage);
-                    var bytesWritten = await writer.StoreAsync();
-                }
-            }
-            catch (SystemException e)
-            {
-                Debug.WriteLine(e);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
-            /*finally
-            {
-                try
-                {
-                    //await writePipe.ClearStallAsync();
-                }
-                catch (SystemException e)
-                {
-                    Debug.WriteLine(e);
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e);
-                }
-            }*/
-
         }
         AddressSection GetNextAddress(AddressSection currentAddress, LoggerInformation loggerInformation)
         {
@@ -663,7 +876,6 @@ namespace TRL
             return temp;
         }
         #endregion
-
         string GetMonT2Serialnumber(List<byte> msg)
         {
             var serialNumber = string.Empty;

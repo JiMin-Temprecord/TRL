@@ -30,7 +30,7 @@ namespace TRL
         string PortName = string.Empty;
 
         #region FindReader
-        public SerialDevice FindReader()
+        public Object FindReader()
         {
 
             if (goingones == false)
@@ -46,7 +46,10 @@ namespace TRL
                 InitializaSerialCommunication();
             }
 
-            return serialDevice;
+            if (serialDevice != null)
+                return serialDevice;
+            else
+                return usbDevice;
         }
 
         void InitializaSerialCommunication()
@@ -95,12 +98,14 @@ namespace TRL
         }
         void OnDeviceAdded(DeviceWatcher sender, DeviceInformation deviceInformation)
         {
-            //Debug.WriteLine(deviceInformation.Id + " was found. ");
             setupPacket = null;
             usbExist = true;
 
+            var id = deviceInformation.Id;
 
-            SetupFTDI(deviceInformation);
+            if(id.Contains("USB")) SetupUSB(deviceInformation.Id);
+            else if (id.Contains("FTDI")) SetupFTDI(deviceInformation);
+
         }
 
         void OnDeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate deviceInformationUpdate)
@@ -133,8 +138,39 @@ namespace TRL
 
             try
             {
-                //usbDevice = await UsbDevice.FromIdAsync(deviceID);
                 serialDevice = await SerialDevice.FromIdAsync(deviceInformation.Id);
+            }
+
+            catch (Exception exception)
+            {
+                Debug.WriteLine("USB READER : " + exception.Message.ToString());
+            }
+
+            finally
+            {
+                if (serialDevice != null)
+                {
+                    if (deviceInformation.Name == "USB Reader")
+                    {
+                        usbExist = true;
+                        serialDevice.BaudRate = 19200;
+                        serialDevice.Parity = SerialParity.None;
+                        serialDevice.DataBits = 8;
+                        serialDevice.StopBits = SerialStopBitCount.One;
+                        serialDevice.Handshake = SerialHandshake.None;
+                        serialDevice.IsDataTerminalReadyEnabled = true;
+
+                        serialDevice.ReadTimeout = new TimeSpan(0, 0, 0, 0, 100);
+                        serialDevice.WriteTimeout = new TimeSpan(0, 0, 0, 0, 100);
+                    }
+                }
+            }
+        }
+        async void SetupUSB(string deviceID)
+        {
+            try
+            {
+                usbDevice = await UsbDevice.FromIdAsync(deviceID);
             }
 
             catch (Exception exception)
@@ -172,23 +208,6 @@ namespace TRL
                         Length = 0
                     };
                     UInt32 bytesTransferred = await usbDevice.SendControlOutTransferAsync(setupPacket);
-                }
-
-                else if (serialDevice != null)
-                {
-                    if (deviceInformation.Name == "USB Reader")
-                    {
-                        usbExist = true;
-                        serialDevice.BaudRate = 19200;
-                        serialDevice.Parity = SerialParity.None;
-                        serialDevice.DataBits = 8;
-                        serialDevice.StopBits = SerialStopBitCount.One;
-                        serialDevice.Handshake = SerialHandshake.None;
-                        serialDevice.IsDataTerminalReadyEnabled = true;
-
-                        serialDevice.ReadTimeout = new TimeSpan(0, 0, 0, 0, 100);
-                        serialDevice.WriteTimeout = new TimeSpan(0, 0, 0, 0, 100);
-                    }
                 }
             }
         }

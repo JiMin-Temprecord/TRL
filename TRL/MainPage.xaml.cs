@@ -2,9 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
-using Windows.Devices.SerialCommunication;
-using Windows.Devices.Usb;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
@@ -18,8 +15,7 @@ namespace TRL
         Communication communication = new Communication();
         LoggerInformation loggerInformation = new LoggerInformation();
         Reader reader;
-        UsbDevice usbDevice = null;
-        SerialDevice serialDevice = null;
+        Object communicationDevice = null;
 
         BackgroundWorker readerBW;
 
@@ -30,10 +26,8 @@ namespace TRL
         {
             this.InitializeComponent();
             ApplicationView.PreferredLaunchViewSize = new Size(710, 760);
-            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
-
             ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(710, 760));
-
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
         async void PDFPreview_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
@@ -99,8 +93,7 @@ namespace TRL
                 case 1:
                     ReaderPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                    //var msg = await communication.FindLogger(usbDevice, reader);
-                    var msg = await communication.FindLogger(serialDevice, reader);
+                    var msg = await communication.FindLogger(communicationDevice, reader);
 
                     if (msg.ToString().Equals("No Reader"))
                         ApplicationProcess(0);
@@ -111,9 +104,7 @@ namespace TRL
                 //Reading Logger
                 case 2:
                     ReadingLoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
-
-                    //errorDectected = await communication.GenerateHexFile(usbDevice, loggerInformation, reader);
-                    errorDectected = await communication.GenerateHexFile(serialDevice, loggerInformation, reader);
+                    errorDectected = await communication.GenerateHexFile(communicationDevice, loggerInformation, reader);
                     ApplicationProcess(3);
                     break;
 
@@ -130,7 +121,6 @@ namespace TRL
                     {
                         LoggerPanel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                         ReaderPanel.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                        usbDevice.Dispose();
                         ApplicationProcess(0);
                     }
                     else
@@ -200,10 +190,9 @@ namespace TRL
         #region Find Reader
         void readerBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //usbDevice = reader.GetUSBDevice();
-            while (serialDevice == null)
+            while (communicationDevice == null)
             {
-                serialDevice = reader.FindReader();
+                communicationDevice = reader.FindReader();
             }
         }
         void readerBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

@@ -9,7 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" ManipulationMode="System" FontFamily="Segoe UI" Width="710" Height="760" BorderBrush="#FF003399" FontSize="14">
 
     <Grid x:Name="bg" FocusVisualSecondaryBrush="#E5FFFFFF" Visibility="Visible" Background="White" Loaded="Grid_Loaded" Width="710" Height="760">
-        <Grid x:Name="PreviewGrid" HorizontalAlignment="center" Height="760" Margin="0,0,0,0" VerticalAlignment="Top" Width="710" Visibility="Visible" FocusVisualSecondaryBrush="{x:Null}" Background="White">
+        <Grid x:Name="PreviewGrid" HorizontalAlignment="center" Height="760" Margin="0,0,0,0" VerticalAlignment="Top" Width="710" Visibility="Collapsed" FocusVisualSecondaryBrush="{x:Null}" Background="White">
             <Button x:Name="PreviewPDF" Height="200" Margin="156,156,0,0" VerticalAlignment="Top" Width="200" Background="{x:Null}" FontWeight="Bold" FontSize="20" BorderThickness="2,2,2,2" BorderBrush="Black" Click="PDFPreview_Click" HorizontalAlignment="Left">
                 <StackPanel x:Name="PreviewPDFPanel" >
                     <Image x:Name="previewPDFImage" Source="/Resources/TempLite-021.png" Height="165" HorizontalAlignment="Center" Width="180"/>
