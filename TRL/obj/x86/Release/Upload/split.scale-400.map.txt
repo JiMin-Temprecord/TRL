@@ -1,0 +1,14 @@
+﻿[ResourceMetadata]
+"ResourceId"			"split.scale-400"
+"ResourceDimensions"		"scale-400"
+
+[Files]
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\Upload\split.scale-400.pri"			"resources.pri"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Resources\logo.scale-400.png"			"Resources\logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Assets\Wide310x150Logo.scale-400.png"			"Assets\Wide310x150Logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Assets\StoreLogo.scale-400.png"			"Assets\StoreLogo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Assets\Square44x44Logo.scale-400.png"			"Assets\Square44x44Logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Assets\Square150x150Logo.scale-400.png"			"Assets\Square150x150Logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Assets\SplashScreen.scale-400.png"			"Assets\SplashScreen.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Assets\logo.scale-400.png"			"Assets\logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\PackageUploadLayout\Assets\LargeTile.scale-400.png"			"Assets\LargeTile.scale-400.png"

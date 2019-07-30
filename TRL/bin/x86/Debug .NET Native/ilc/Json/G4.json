@@ -1,0 +1,375 @@
+{
+    "UTCReferenceTime": {
+        "add": "FF0000",
+        "len": "8",
+        "code": "_8_Byte_to_Unix_UTC",
+        "hide": 0
+    },
+    
+    "LoopOverWriteAddress": {
+        "add": "FD0000",
+        "len": "2",
+        "code": "_2_Byte_to_Decimal_Big_Endian",
+        "hide": 0
+    },
+    
+    "HEADER,State": {
+      "add": "010034",
+      "len": "1",
+      "code": "*Logger_State",
+      "hide": 0
+    },
+    "HEADER,SerialNumber": {
+        "add": "0030DE",
+        "len": "4",
+        "code": "Serial_Number_Decoding",
+        "hide": 0
+    },
+    "HEADER,Tsn": {
+        "add": "00327E",
+        "len": "4",
+        "code": "_4_Byte_to_Decimal",
+        "hide": 0
+    },
+    "HEADER,Locked": {
+        "add": "00329B",
+        "len": "1",
+        "code": "_1_Byte_to_Boolean",
+        "hide": 0
+    },
+
+    "HEADER,TotalUses": {
+        "add": "0030EA",
+        "len": "4",
+        "code": "_4_Byte_to_Decimal",
+        "hide": 0
+    },
+    "HEADER,TotalRTCTicks": {
+        "add": "0030EE",
+        "len": "4",
+        "code": "_4_Byte_to_Decimal",
+        "hide": 0
+    },
+    "HEADER,TotalSamplingEvents": {
+        "add": "0030F2",
+        "len": "4",
+        "code": "_4_Byte_to_Decimal",
+        "hide": 0
+    },
+  "HEADER,CodeBuild": {
+    "add": "0030E2",
+    "len": "4",
+    "code": "_4_Byte_Built",
+    "hide": 0
+  },
+  
+  "HEADER,DateOfBirth": {
+    "add": "0030E6",
+    "len": "4",
+    "code": "_4_Byte_to_UNIX",
+    "hide": 0
+  },
+  "HEADER,Type": {
+    "add": "003225",
+    "len": "1",
+    "code": "LoggerModel",
+    "hide": 0
+  },
+
+
+
+    "USER_SETTINGS,Fahrenheit": {
+        "add": "0030FA",
+        "len": "1",
+        "code": "b0",
+        "hide": 0
+    },
+    "USER_SETTINGS,LoopOverWrite": {
+        "add": "0030FA",
+        "len": "1",
+        "code": "b1",
+        "hide": 0
+    },
+    "USER_SETTINGS,StartButtonEnabled": {
+        "add": "0030FA",
+        "len": "1",
+        "code": "b2",
+        "hide": 0
+    },
+    "USER_SETTINGS,MarkButtonEnabled": {
+        "add": "0030FA",
+        "len": "1",
+        "code": "b3",
+        "hide": 0
+    },
+    "USER_SETTINGS,StopButtonEnabled": {
+        "add": "0030FA",
+        "len": "1",
+        "code": "b4",
+        "hide": 0
+    },
+    "USER_SETTINGS,ReuseButtonEnabled": {
+        "add": "0030FA",
+        "len": "1",
+        "code": "b5",
+        "hide": 0
+    },
+    "USER_SETTINGS,MarkEventEnabled": {
+        "add": "0030FA",
+        "len": "1",
+        "code": "b6",
+        "hide": 0
+    },
+    "USER_SETTINGS,LowerLimitExtAlarm": {
+        "add": "0030FB",
+        "len": "1",
+        "code": "b0",
+        "hide": 0
+    },
+    "USER_SETTINGS,UpperLimitExtAlarm": {
+        "add": "0030FB",
+        "len": "1",
+        "code": "b1",
+        "hide": 0
+    },
+    "USER_SETTINGS,SafeRangeExtAlarm": {
+        "add": "0030FB",
+        "len": "1",
+        "code": "b2",
+        "hide": 0
+    },
+    "USER_SETTINGS,LowBatteryExtAlarm": {
+        "add": "0030FB",
+        "len": "1",
+        "code": "b3",
+        "hide": 0
+    },
+    "USER_SETTINGS,LEDEnabled": {
+        "add": "0030FB",
+        "len": "1",
+        "code": "b4",
+        "hide": 0
+    },
+    "USER_SETTINGS,StartDelay": {
+        "add": "0030FC",
+        "len": "4",
+        "code": "DJNZ_4_Byte_Type_1",
+        "hide": 0
+    },
+    "USER_SETTINGS,SamplingPeriod": {
+        "add": "003100",
+        "len": "2",
+        "code": "DJNZ_2_Byte_Type_1",
+        "hide": 0
+    },
+    "USER_SETTINGS,LoggingSelection": {
+        "add": "003102",
+        "len": "1",
+        "code": "LoggingSelection",
+        "hide": 0
+    },
+    
+    
+    
+                "SENSOR,SensorNumber": {
+                    "add": "010055",
+                    "len": "1",
+                    "code": "_1_Byte_to_Decimal",
+                    "hide": 0
+                },
+    
+    "USER_SETTINGS,Owner": {
+        "add": "003284",
+        "len": "8",
+        "code": "String",
+        "hide": 0
+    },
+    
+    "USER_DATA,UserDataLen": {
+        "add": "003103",
+        "len": "1",
+        "code": "_1_Byte_to_Decimal",
+        "hide": 1
+    },
+    "USER_DATA,UserData": {
+        "add": "003104",
+        "len": "255",
+        "code": "String",
+        "hide": 0
+    },
+
+    "DATA_INFO,DataEndPointer": {
+        "add": "010063",
+        "len": "2",
+        "code": "_2_Byte_to_Decimal",
+        "hide": 1
+    },
+    "DATA_INFO,TicksAtLastSample": {
+        "add": "01003D",
+        "len": "4",
+        "code": "DJNZ_4_Byte_Type_2",
+        "hide": 1
+    },
+    "DATA_INFO,TicksSinceArousal": {
+        "add": "010039",
+        "len": "4",
+        "code": "DJNZ_4_Byte_Type_2",
+        "hide": 1
+    },
+
+
+
+
+
+
+
+
+
+
+    "DATA_INFO,TimeStarted": {
+        "add": "003204",
+        "len": "4",
+        "code": "_4_Byte_to_UNIX",
+        "hide": 0
+    },
+    "DATA_INFO,SamplesNumber": {
+        "add": "010070",
+        "len": "3",
+        "code": "_3_Byte_to_Decimal",
+        "hide": 0
+    },
+    "DATA_INFO,EventsMarked": {
+        "add": "010073",
+        "len": "2",
+        "code": "DJNZ_2_Byte_Type_2",
+        "hide": 0
+    },
+    "BATTERY_INFO,Battery": {
+        "add": "01005B",
+        "len": "1",
+        "code": "_1_Byte_to_Decimal",
+        "hide": 0
+    },
+    "BATTERY_INFO,BatteryType": {
+        "add": "00320A",
+        "len": "1",
+        "code": "Battery_Type",
+        "hide": 0
+    },
+
+    "BATTERY_INFO,InitialBatteryCapacity": {
+        "add": "00320B",
+        "len": "2",
+        "code": "_2_Byte_to_Decimal"
+    },
+    "BATTERY_INFO,RemainingBatteryCapacity": {
+        "add": "00320D",
+        "len": "2",
+        "code": "_2_Byte_to_Decimal"
+    },
+
+
+
+
+    "TABLE,CompressionTable": {
+        "add": "003349",
+        "len": "254",
+        "code": "CompressionTable",
+        "hide": 1
+    },
+
+
+
+
+    
+    "SENSOR,FirstSensor": {
+        "add": "010057",
+        "len": "1",
+        "code": "_1_Byte_to_Decimal",
+        "hide": 0
+    },
+    "SENSOR,SENSOR": {
+        "add": "003226",
+        "len": "88",
+        "code": "SENSOR_Decoding",
+        "hide": 0
+    },
+    
+    
+    
+    
+    
+
+
+
+    "CHANNEL_INFO,LowerLimit": {
+        "add": "0032BF",
+        "len": "72",
+        "code": "_3_Byte_to_Temperature_ARRAY",
+        "hide": 0
+    },
+    "CHANNEL_INFO,UpperLimit": {
+        "add": "0032C2",
+        "len": "72",
+        "code": "_3_Byte_to_Temperature_ARRAY",
+        "hide": 0
+    },
+    "CHANNEL_INFO,AlarmDelay": {
+        "add": "0032C5",
+        "len": "72",
+        "code": "_1_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+    "CHANNEL_INFO,DelaySampleChannel": {
+        "add": "0032C6",
+        "len": "72",
+        "code": "_1_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+    "CHANNEL_INFO,LimitSampleChannel": {
+        "add": "0032C7",
+        "len": "72",
+        "code": "_1_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+    "CHANNEL_INFO,ofsLimitsASMStateChannel":{
+        "add": "010080",
+        "len": "72",
+        "code": "_1_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+    "CHANNEL_INFO,ofs_SRECheckCounterofsLowerLimitCounterChannel":{
+        "add": "010081",
+        "len": "72",
+        "code": "_1_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+    "CHANNEL_INFO,ofsUpperLimitCounterChannel":{
+        "add": "010082",
+        "len": "72",
+        "code": "_1_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+    "CHANNEL_INFO,ofsSamplesBelowLoLimitChannel":{
+        "add": "010083",
+        "len": "72",
+        "code": "_3_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+    "CHANNEL_INFO,ofsSamplesAboveHiLimitChannel":{
+        "add": "010086",
+        "len": "72",
+        "code": "_3_Byte_to_Decimal_ARRAY",
+        "hide": 1
+    },
+
+
+
+
+    "SENSOR,Decode_Delta_Data": {
+        "add": "040000",
+        "len": "32768",
+        "code": "Decode_Delta_Data",
+        "hide": 0
+    }
+}

@@ -1,0 +1,12 @@
+﻿"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in\BouncyCastle.Crypto.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in\MailKit.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in\MimeKit.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in\Newtonsoft.Json.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in\PDF.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in\TRL.exe"
+/Lib:"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in"
+/Lib:"C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\runtime.win10-x86.microsoft.net.native.compiler\2.2.3\tools\x86\ilc\lib\Private"
+/WinMD:"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Release\ilc\in\WinMetadata\Windows.winmd"
+/VSTelemetrySessionSettings:"{"IsOptedIn":true,"HostName":"Dev14","AppInsightsInstrumentationKey":"f144292e-e3b2-4011-ac90-20e5c03fbce5","AsimovInstrumentationKey":"AIF-312cbd79-9dbb-4c48-a7da-3cc2a931cb70","AppId":1001,"UserId":"50874da3-118e-46b6-89d2-e78cc66a9f5c","Id":"16dad83f-bc0d-4f03-b30d-b4e4428a5275","ProcessStartTime":636993631198630178}"
+/RdXmlPath:"C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\microsoft.net.native.compiler\2.2.3\tools\LibraryXML"
+/RunOnlyPreDR

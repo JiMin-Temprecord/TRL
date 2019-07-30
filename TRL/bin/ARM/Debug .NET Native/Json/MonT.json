@@ -1,0 +1,635 @@
+{
+  "UTCReferenceTime": {
+    "add": "FF0000",
+    "len": "8",
+    "code": "_8_Byte_to_Unix_UTC",
+    "hide": 0
+  },
+
+
+
+                      "HEADER,State": {
+                        "add": "010037",
+                        "len": "1",
+                        "code": "*Logger_State",
+                        "hide": 0
+                      },
+                      "HEADER,SerialNumber": {
+                        "add": "000C5A",
+                        "len": "4",
+                        "code": "Serial_Number_Decoding",
+                        "hide": 0
+                      },
+  "HEADER,Type": {
+    "add": "FE0002",
+    "len": "1",
+    "code": "LoggerModel",
+    "hide": 0
+  },
+  "HEADER,Firmware": {
+    "add": "FE0003",
+    "len": "1",
+    "code": "_1_Byte_to_Decimal",
+    "hide": 0
+  },
+                      "HEADER,TotalUses": {
+                        "add": "000C75",
+                        "len": "4",
+                        "code": "_4_Byte_to_Decimal",
+                        "hide": 0
+                      },
+                      "HEADER,TotalRTCTicks": {
+                        "add": "000C6D",
+                        "len": "4",
+                        "code": "_4_Byte_to_Decimal",
+                        "hide": 0
+                      },
+                      "HEADER,TotalSamplingEvents": {
+                        "add": "000C71",
+                        "len": "4",
+                        "code": "_4_Byte_to_Decimal",
+                        "hide": 0
+                      },
+                      "HEADER,CodeBuild": {
+                        "add": "000C5E",
+                        "len": "4",
+                        "code": "_4_Byte_Sec_to_Date",
+                        "hide": 0
+                      },
+                      "HEADER,ManufactureDate": {
+                        "add": "000C62",
+                        "len": "4",
+                        "code": "_4_Byte_to_UNIX",
+                        "hide": 0
+                      },
+
+
+
+              "USER_SETTINGS,Fahrenheit": {
+                "add": "000C79",
+                "len": "1",
+                "code": "b0",
+                "hide": 0
+              },
+              "USER_SETTINGS,LoopOverwrite": {
+                "add": "000C79",
+                "len": "1",
+                "code": "b1",
+                "hide": 0
+              },
+              "USER_SETTINGS,StartButtonEnabled": {
+                "add": "000C79",
+                "len": "1",
+                "code": "b2",
+                "hide": 0
+              },
+              "USER_SETTINGS,StopButtonEnabled": {
+                "add": "000C79",
+                "len": "1",
+                "code": "b3",
+                "hide": 0
+              },
+              "USER_SETTINGS,RedLEDEnabled": {
+                "add": "010020",
+                "len": "1",
+                "code": "b3",
+                "hide": 0
+              },
+              "USER_SETTINGS,GreenLEDEnabled": {
+                "add": "010020",
+                "len": "1",
+                "code": "b4",
+                "hide": 0
+              },
+              "USER_SETTINGS,StartDelay": {
+                "add": "000C86",
+                "len": "2",
+                "code": "DJNZ_2_Byte_Type_1",
+                "hide": 0
+              },
+              "USER_SETTINGS,SamplingPeriod": {
+                "add": "000C88",
+                "len": "2",
+                "code": "DJNZ_2_Byte_Type_1",
+                "hide": 0
+              },
+              "USER_SETTINGS,LowestTemp": {
+                "add": "000C7B",
+                "len": "2",
+                "code": "_2_Byte_to_Temperature_MonT",
+                "hide": 1
+              },
+              "USER_SETTINGS,ResolutionRatio": {
+                "add": "000C7D",
+                "len": "2",
+                "code": "_2_Byte_to_Decimal",
+                "hide": 1
+              },
+              "USER_SETTINGS,DetentRange": {
+                "add": "000C7F",
+                "len": "2",
+                "code": "_2_Byte_to_Decimal",
+                "hide": 1
+              },
+              "USER_SETTINGS,LoggingSelection": {
+                "add": "000C7F",
+                "len": "2",
+                "code": "Logging_selection_MonT",
+                "hide": 0
+              },
+
+
+
+
+
+                    "USER_DATA,UserDataLen": {
+                      "add": "000C8A",
+                      "len": "1",
+                      "code": "_1_Byte_to_Decimal",
+                      "hide": 1
+                    },
+                    "USER_DATA,UserData": {
+                      "add": "000C8B",
+                      "len": "159",
+                      "code": "String",
+                      "hide": 0
+                    },
+
+
+
+
+
+              "DATA_INFO,Overwritten": {
+                "add": "010024",
+                "len": "1",
+                "code": "b3",
+                "hide": 1
+              },
+              "DATA_INFO,SamplePointer": {
+                "add": "010046",
+                "len": "2",
+                "code": "_2_Byte_to_Decimal",
+                "hide": 1
+              },
+              "DATA_INFO,TicksAtLastSample": {
+                "add": "010040",
+                "len": "4",
+                "code": "DJNZ_4_Byte_Type_2",
+                "hide": 1
+              },
+              "DATA_INFO,TicksSinceArousal": {
+                "add": "01003C",
+                "len": "4",
+                "code": "DJNZ_4_Byte_Type_2",
+                "hide": 1
+              },
+  "SecondsTimer": {
+    "add": "010044",
+    "len": "4",
+    "code": "DJNZ_4_Byte_Type_2",
+    "hide": 1
+  },
+
+              "DATA_INFO,LastSampleAt": {
+                "add": "FF0000",
+                "len": "1",
+                "code": "Time_LastSample_MonT",
+                "hide": 0
+              },
+
+  "DATA_INFO,Time_FirstSample_MonT": {
+    "add": "FF0000",
+    "len": "1",
+    "code": "Time_FirstSample_MonT",
+    "hide": 1
+  },
+              "DATA_INFO,SamplesNumber": {
+                "add": "FF0000",
+                "len": "1",
+                "code": "SampleNumber_logged_MonT",
+                "hide": 0
+              },
+
+
+  "BATTERY_INFO,Battery": {
+    "add": "FF0000",
+    "len": "1",
+    "code": "Battery_MonT",
+    "hide": 0
+  },
+
+                    "BATTERY_INFO,BatteryType": {
+                      "add": "000C6C",
+                      "len": "1",
+                      "code": "Battery_Type",
+                      "hide": 0
+                    },
+
+
+
+
+                  "TABLE,MinLogRTTable": {
+                    "add": "000D6C",
+                    "len": "2",
+                    "code": "_2_Byte_to_Temperature_MonT",
+                    "hide": 1
+                  },
+                  "TABLE,MaxLogRTTable": {
+                    "add": "000D6E",
+                    "len": "2",
+                    "code": "_2_Byte_to_Temperature_MonT",
+                    "hide": 1
+                  },
+
+
+
+
+
+
+              "SENSOR,SensorNumber": {
+                "add": "FE0000",
+                "len": "1",
+                "code": "Channel_1_MonT",
+                "hide": 0
+              },
+              "SENSOR,FirstSampleAtUNIX": {
+                "add": "FF0000",
+                "len": "8",
+                "code": "_8_Byte_to_Unix_UTC",
+                "hide": 0
+              },
+
+
+              "CHANNEL_INFO,LowerLimit": {
+                "add": "000C81",
+                "len": "2",
+                "code": "_2_Byte_to_Temperature_MonT",
+                "hide": 1
+              },
+              "CHANNEL_INFO,UpperLimit": {
+                "add": "000C83",
+                "len": "2",
+                "code": "_2_Byte_to_Temperature_MonT",
+                "hide": 1
+              },
+              "CHANNEL_INFO,AlarmDelay": {
+                "add": "000C85",
+                "len": "1",
+                "code": "_1_Byte_to_Decimal",
+                "hide": 1
+              },
+              "CHANNEL_INFO,LowerTLimitExceeded": {
+                "add": "010024",
+                "len": "1",
+                "code": "b4",
+                "hide": 1
+              },
+              "CHANNEL_INFO,UpperTLimitExceeded": {
+                "add": "010024",
+                "len": "1",
+                "code": "b5",
+                "hide": 1
+              },
+              "CHANNEL_INFO,LowerHLimitExceeded": {
+                "add": "010024",
+                "len": "1",
+                "code": "b6",
+                "hide": 1
+              },
+              "CHANNEL_INFO,UpperHLimitExceeded": {
+                "add": "010024",
+                "len": "1",
+                "code": "b7",
+                "hide": 1
+              },
+              "CHANNEL_INFO,LowerLimitCounter": {
+                "add": "010059",
+                "len": "1",
+                "code": "_1_Byte_to_Decimal",
+                "hide": 1
+              },
+              "CHANNEL_INFO,UpperLimitCounter": {
+                "add": "01005A",
+                "len": "1",
+                "code": "_1_Byte_to_Decimal",
+                "hide": 1
+              },
+
+
+
+
+  "SENSOR,Decode_MonT_Data": {
+    "add": "000DB6",
+    "len": "4682",
+    "code": "Decode_MonT_Data",
+    "hide": 0
+  },
+
+
+
+
+
+
+
+
+
+  "TemperatureHiRes": {
+    "add": "010055",
+    "len": "2",
+    "code": "_2_Byte_to_Temperature_MonT",
+    "hide": 1
+  },
+  "TemperatureLoRes": {
+    "add": "010057",
+    "len": "2",
+    "code": "_2_Byte_to_Temperature_MonT",
+    "hide": 1
+  },
+
+
+  "RxBufferIndex": {
+    "add": "010048",
+    "len": "1",
+    "code": "_1_Byte_to_Decimal",
+    "hide": 1
+  },
+  "TxFIFOOldest": {
+    "add": "010049",
+    "len": "1",
+    "code": "_1_Byte_to_Decimal",
+    "hide": 1
+  },
+  "TxFIFONewest": {
+    "add": "01004A",
+    "len": "1",
+    "code": "_1_Byte_to_Decimal",
+    "hide": 1
+  },
+  "BytesInTxFIFO": {
+    "add": "01004B",
+    "len": "1",
+    "code": "_1_Byte_to_Decimal",
+    "hide": 1
+  },
+  "BytesToSend": {
+    "add": "01004C",
+    "len": "2",
+    "code": "DJNZ_2_Byte_Type_1",
+    "hide": 1
+  },
+  "CRCChecksum": {
+    "add": "01004E",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+  "BytesToRead": {
+    "add": "010050",
+    "len": "2",
+    "code": "DJNZ_2_Byte_Type_1",
+    "hide": 1
+  },
+  "SourceArea": {
+    "add": "010052",
+    "len": "1",
+    "code": "_1_Byte_to_Decimal",
+    "hide": 1
+  },
+  "SourceAddress": {
+    "add": "010053",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+
+
+  "FlashVerifyErrors": {
+    "add": "01005B",
+    "len": "1",
+    "code": "XXX",
+    "hide": 1
+  },
+  "FlashTimeoutErrors": {
+    "add": "01005C",
+    "len": "1",
+    "code": "XXX",
+    "hide": 1
+  },
+
+  "SampleBufferStart": {
+    "add": "000C66",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+  "SampleBufferEnd": {
+    "add": "000C68",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+  "RRefValue": {
+    "add": "000C6A",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+
+
+
+  "MinLogRTTable": {
+    "add": "000D6C",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+  "MaxLogRTTable": {
+    "add": "000D6E",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+
+  "LogRTTableCRC": {
+    "add": "000DB4",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+
+  "FlashWriteError": {
+    "add": "010024",
+    "len": "1",
+    "code": "b0",
+    "hide": 1
+  },
+
+  "SDCOverrunError": {
+    "add": "010024",
+    "len": "1",
+    "code": "b1",
+    "hide": 1
+  },
+
+  "ResultAvailable": {
+    "add": "010024",
+    "len": "1",
+    "code": "b2",
+    "hide": 1
+  },
+
+
+
+
+
+
+
+
+  "TickEvent": {
+    "add": "010020",
+    "len": "1",
+    "code": "b0",
+    "hide": 1
+  },
+
+  "TenmsEvent": {
+    "add": "010020",
+    "len": "1",
+    "code": "b1",
+    "hide": 1
+  },
+
+  "LEDState": {
+    "add": "010020",
+    "len": "1",
+    "code": "b2",
+    "hide": 1
+  },
+
+
+
+
+  "ButtonClicked": {
+    "add": "010020",
+    "len": "1",
+    "code": "b5",
+    "hide": 1
+  },
+
+  "ButtonStartRequest": {
+    "add": "010020",
+    "len": "1",
+    "code": "b6",
+    "hide": 1
+  },
+
+  "ButtonStopRequest": {
+    "add": "010020",
+    "len": "1",
+    "code": "b7",
+    "hide": 1
+  },
+
+
+  "EscapedCh": {
+    "add": "010021",
+    "len": "1",
+    "code": "b0",
+    "hide": 1
+  },
+
+  "PacketReceived": {
+    "add": "010021",
+    "len": "1",
+    "code": "b1",
+    "hide": 1
+  },
+
+  "SendingResponse": {
+    "add": "010021",
+    "len": "1",
+    "code": "b2",
+    "hide": 1
+  },
+
+  "IDTxActive": {
+    "add": "010021",
+    "len": "1",
+    "code": "b3",
+    "hide": 1
+  },
+
+  "ReadingMemory": {
+    "add": "010021",
+    "len": "1",
+    "code": "b4",
+    "hide": 1
+  },
+
+  "PayloadSent": {
+    "add": "010021",
+    "len": "1",
+    "code": "b5",
+    "hide": 1
+  },
+
+  "CRCSent": {
+    "add": "010021",
+    "len": "1",
+    "code": "b6",
+    "hide": 1
+  },
+
+  "DoConversion": {
+    "add": "010021",
+    "len": "1",
+    "code": "b7",
+    "hide": 1
+  },
+
+  "Converting": {
+    "add": "010022",
+    "len": "1",
+    "code": "b0",
+    "hide": 1
+  },
+
+  "ConversionComplete": {
+    "add": "010022",
+    "len": "1",
+    "code": "b1",
+    "hide": 1
+  },
+
+  "Processing": {
+    "add": "010022",
+    "len": "1",
+    "code": "b2",
+    "hide": 1
+  },
+
+
+  "RecordResult": {
+    "add": "010022",
+    "len": "1",
+    "code": "b3",
+    "hide": 1
+  },
+
+  "WDTimeout": {
+    "add": "010022",
+    "len": "1",
+    "code": "b4",
+    "hide": 1
+  },
+
+  "ThrottleRelease": {
+    "add": "010022",
+    "len": "1",
+    "code": "b5",
+    "hide": 1
+  }
+
+
+
+}

@@ -1,0 +1,6 @@
+MainPackage=C:\Users\JiMin\source\repos\TRL\TRL\bin\x86\Release\Upload\TRL_1.0.0.0_x86.appx
+SymbolPackage=C:\Users\JiMin\source\repos\TRL\TRL\bin\x86\Release\Upload\TRL_1.0.0.0\TRL_1.0.0.0_x86.appxsym
+ResourcePack=C:\Users\JiMin\source\repos\TRL\TRL\bin\x86\Release\Upload\TRL_1.0.0.0_scale-100.appx
+ResourcePack=C:\Users\JiMin\source\repos\TRL\TRL\bin\x86\Release\Upload\TRL_1.0.0.0_scale-125.appx
+ResourcePack=C:\Users\JiMin\source\repos\TRL\TRL\bin\x86\Release\Upload\TRL_1.0.0.0_scale-150.appx
+ResourcePack=C:\Users\JiMin\source\repos\TRL\TRL\bin\x86\Release\Upload\TRL_1.0.0.0_scale-400.appx

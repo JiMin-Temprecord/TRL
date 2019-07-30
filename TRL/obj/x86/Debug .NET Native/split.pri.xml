@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PriInfo>
+	<ResourceMap name="Temprecord.TempLite" version="1.0" primary="true">
+		<Qualifiers>
+			<AlternateForm>UNPLATED</AlternateForm>
+			<Scale>200</Scale>
+			<TargetSize>256,16,24,32,48</TargetSize>
+		</Qualifiers>
+		<ResourceMapSubtree name="Files">
+			<NamedResource name="App.xbf" uri="ms-resource://Temprecord.TempLite/Files/App.xbf">
+				<Candidate type="EmbeddedData">
+					<Base64Value>[Embedded Binary Data]</Base64Value>
+				</Candidate>
+			</NamedResource>
+			<NamedResource name="MainPage.xbf" uri="ms-resource://Temprecord.TempLite/Files/MainPage.xbf">
+				<Candidate type="EmbeddedData">
+					<Base64Value>[Embedded Binary Data]</Base64Value>
+				</Candidate>
+			</NamedResource>
+			<NamedResource name="TempLite.ico" uri="ms-resource://Temprecord.TempLite/Files/TempLite.ico">
+				<Candidate type="Path">
+					<Value>TempLite.ico</Value>
+				</Candidate>
+			</NamedResource>
+			<NamedResource name="TRL.xr.xml" uri="ms-resource://Temprecord.TempLite/Files/TRL.xr.xml">
+				<Candidate type="Path">
+					<Value>TRL.xr.xml</Value>
+				</Candidate>
+			</NamedResource>
+			<ResourceMapSubtree name="Assets">
+				<NamedResource name="LargeTile.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/LargeTile.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\LargeTile.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="LockScreenLogo.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/LockScreenLogo.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\LockScreenLogo.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="logo.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/logo.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\logo.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="roboto_medium.ttf" uri="ms-resource://Temprecord.TempLite/Files/Assets/roboto_medium.ttf">
+					<Candidate type="Path">
+						<Value>Assets\roboto_medium.ttf</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="SplashScreen.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/SplashScreen.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\SplashScreen.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="Square150x150Logo.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/Square150x150Logo.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\Square150x150Logo.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="Square44x44Logo.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/Square44x44Logo.png">
+					<Candidate qualifiers="TargetSize-48, AlternateForm-UNPLATED" type="Path">
+						<Value>Assets\Square44x44Logo.altform-unplated_targetsize-48.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-48" isDefault="true" type="Path">
+						<Value>Assets\Square44x44Logo.targetsize-48.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-32, AlternateForm-UNPLATED" type="Path">
+						<Value>Assets\Square44x44Logo.altform-unplated_targetsize-32.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-32" isDefault="true" type="Path">
+						<Value>Assets\Square44x44Logo.targetsize-32.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-256, AlternateForm-UNPLATED" type="Path">
+						<Value>Assets\Square44x44Logo.altform-unplated_targetsize-256.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-256" isDefault="true" type="Path">
+						<Value>Assets\Square44x44Logo.targetsize-256.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-24, AlternateForm-UNPLATED" type="Path">
+						<Value>Assets\Square44x44Logo.targetsize-24_altform-unplated.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-24" isDefault="true" type="Path">
+						<Value>Assets\Square44x44Logo.targetsize-24.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-16, AlternateForm-UNPLATED" type="Path">
+						<Value>Assets\Square44x44Logo.altform-unplated_targetsize-16.png</Value>
+					</Candidate>
+					<Candidate qualifiers="TargetSize-16" isDefault="true" type="Path">
+						<Value>Assets\Square44x44Logo.targetsize-16.png</Value>
+					</Candidate>
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\Square44x44Logo.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="StoreLogo.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/StoreLogo.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\StoreLogo.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="Wide310x150Logo.png" uri="ms-resource://Temprecord.TempLite/Files/Assets/Wide310x150Logo.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Assets\Wide310x150Logo.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+			<ResourceMapSubtree name="Images">
+				<NamedResource name="errorWarning.png" uri="ms-resource://Temprecord.TempLite/Files/Images/errorWarning.png">
+					<Candidate type="Path">
+						<Value>Images\errorWarning.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="greentick.png" uri="ms-resource://Temprecord.TempLite/Files/Images/greentick.png">
+					<Candidate type="Path">
+						<Value>Images\greentick.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="logo.png" uri="ms-resource://Temprecord.TempLite/Files/Images/logo.png">
+					<Candidate type="Path">
+						<Value>Images\logo.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="redwarning.png" uri="ms-resource://Temprecord.TempLite/Files/Images/redwarning.png">
+					<Candidate type="Path">
+						<Value>Images\redwarning.png</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+			<ResourceMapSubtree name="Json">
+				<NamedResource name="G4.json" uri="ms-resource://Temprecord.TempLite/Files/Json/G4.json">
+					<Candidate type="Path">
+						<Value>Json\G4.json</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="MonT.json" uri="ms-resource://Temprecord.TempLite/Files/Json/MonT.json">
+					<Candidate type="Path">
+						<Value>Json\MonT.json</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+			<ResourceMapSubtree name="Properties">
+				<NamedResource name="Default.rd.xml" uri="ms-resource://Temprecord.TempLite/Files/Properties/Default.rd.xml">
+					<Candidate type="Path">
+						<Value>Properties\Default.rd.xml</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+			<ResourceMapSubtree name="Resources">
+				<NamedResource name="email.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/email.png">
+					<Candidate type="Path">
+						<Value>Resources\email.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="emailSuccess.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/emailSuccess.png">
+					<Candidate type="Path">
+						<Value>Resources\emailSuccess.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="excel.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/excel.png">
+					<Candidate type="Path">
+						<Value>Resources\excel.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="greentick.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/greentick.png">
+					<Candidate type="Path">
+						<Value>Resources\greentick.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="logger-01.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/logger-01.png">
+					<Candidate type="Path">
+						<Value>Resources\logger-01.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="logo.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/logo.png">
+					<Candidate qualifiers="Scale-200" isDefault="true" type="Path">
+						<Value>Resources\logo.scale-200.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="pdf.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/pdf.png">
+					<Candidate type="Path">
+						<Value>Resources\pdf.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="product-04.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/product-04.png">
+					<Candidate type="Path">
+						<Value>Resources\product-04.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="redwarning.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/redwarning.png">
+					<Candidate type="Path">
+						<Value>Resources\redwarning.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="TempLite-01.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/TempLite-01.png">
+					<Candidate type="Path">
+						<Value>Resources\TempLite-01.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="TempLite-02.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/TempLite-02.png">
+					<Candidate type="Path">
+						<Value>Resources\TempLite-02.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="TempLite-021.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/TempLite-021.png">
+					<Candidate type="Path">
+						<Value>Resources\TempLite-021.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="TempLite-04.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/TempLite-04.png">
+					<Candidate type="Path">
+						<Value>Resources\TempLite-04.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="TempLite-05.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/TempLite-05.png">
+					<Candidate type="Path">
+						<Value>Resources\TempLite-05.png</Value>
+					</Candidate>
+				</NamedResource>
+				<NamedResource name="TempLite-051.png" uri="ms-resource://Temprecord.TempLite/Files/Resources/TempLite-051.png">
+					<Candidate type="Path">
+						<Value>Resources\TempLite-051.png</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+			<ResourceMapSubtree name="WinMetadata">
+				<NamedResource name="Windows.winmd" uri="ms-resource://Temprecord.TempLite/Files/WinMetadata/Windows.winmd">
+					<Candidate type="Path">
+						<Value>WinMetadata\Windows.winmd</Value>
+					</Candidate>
+				</NamedResource>
+			</ResourceMapSubtree>
+		</ResourceMapSubtree>
+	</ResourceMap>
+</PriInfo>

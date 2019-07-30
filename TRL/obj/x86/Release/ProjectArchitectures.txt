@@ -1,0 +1,2 @@
+C:\Users\JiMin\source\repos\PDF\PDF\PDF.csproj;neutral
+C:\Users\JiMin\source\repos\TRL\TRL\TRL.csproj;x86

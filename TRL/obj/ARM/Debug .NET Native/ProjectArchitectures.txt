@@ -1,0 +1,2 @@
+C:\Users\JiMin\source\repos\PDF\PDF\PDF.csproj;arm
+C:\Users\JiMin\source\repos\TRL\TRL\TRL.csproj;arm

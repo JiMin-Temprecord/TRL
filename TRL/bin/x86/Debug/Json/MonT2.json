@@ -1,0 +1,204 @@
+{
+  "UTCReferenceTime": {
+    "add": "FF0000",
+    "len": "8",
+    "code": "_8_Byte_to_Unix_UTC",
+    "hide": 0
+  },
+
+  "HEADER,State": {
+    "add": "010004",
+    "len": "1",
+    "code": "*Logger_State",
+    "hide": 0
+  },
+  "HEADER,SerialNumber": {
+    "add": "FE0008",
+    "len": "10",
+    "code": "String",
+    "hide": 0
+  },
+  "HEADER,Type": {
+    "add": "FE0005",
+    "len": "1",
+    "code": "MonT2_Model",
+    "hide": 0
+  },
+  "HEADER,TotalUses": {
+    "add": "020024",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 0
+  },
+  "HEADER,TotalSamplingEvents": {
+    "add": "02002A",
+    "len": "4",
+    "code": "_4_Byte_to_Decimal_2",
+    "hide": 0
+  },
+
+  "USER_SETTINGS,Fahrenheit": {
+    "add": "020078",
+    "len": "1",
+    "code": "b0",
+    "hide": 0
+  },
+  "USER_SETTINGS,LoopOverwrite": {
+    "add": "020078",
+    "len": "1",
+    "code": "b1",
+    "hide": 0
+  },
+  "USER_SETTINGS,StartButtonEnabled": {
+    "add": "020078",
+    "len": "1",
+    "code": "b4",
+    "hide": 0
+  },
+
+  "USER_SETTINGS,StopButtonEnabled": {
+    "add": "020078",
+    "len": "1",
+    "code": "b5",
+    "hide": 0
+  },
+  "USER_SETTINGS,ReuseButtonEnabled": {
+    "add": "020078",
+    "len": "1",
+    "code": "b6",
+    "hide": 0
+  },
+  "USER_SETTINGS,MarkEventEnabled": {
+    "add": "020078",
+    "len": "1",
+    "code": "b3",
+    "hide": 0
+  },
+  "USER_SETTINGS,ChannelOneEnable": {
+    "add": "02007A",
+    "len": "1",
+    "code": "b0",
+    "hide": 0
+  },
+  "USER_SETTINGS,ChannelTwoEnable": {
+    "add": "020082",
+    "len": "1",
+    "code": "b0",
+    "hide": 0
+  },
+  "USER_SETTINGS,StartDelay": {
+    "add": "02008C",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 0
+  },
+  "USER_SETTINGS,SamplingPeriod": {
+    "add": "02008A",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 0
+  },
+
+  "DATA_INFO,NotOverflown": {
+    "add": "020000",
+    "len": "1",
+    "code": "b2",
+    "hide": 0
+  },
+  "DATA_INFO,TicksAtLastSample": {
+    "add": "010014",
+    "len": "4",
+    "code": "_4_Byte_to_Decimal_2",
+    "hide": 1
+  },
+  "DATA_INFO,TicksSinceStart": {
+    "add": "01001E",
+    "len": "4",
+    "code": "_4_Byte_to_Decimal_2",
+    "hide": 1
+  },
+  "DATA_INFO,SamplePointer": {
+    "add": "010006",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 0
+  },
+  "DATA_INFO,SamplesNumber": {
+    "add": "010008",
+    "len": "4",
+    "code": "MonT2_SampleNum",
+    "hide": 0
+  },
+  "DATA_INFO,EventsMarked": {
+    "add": "010056",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 0
+  },
+  "DATA_INFO,Time_FirstSample_MonT2": {
+    "add": "02000C",
+    "len": "6",
+    "code": "Time_FirstSample_MonT2",
+    "hide": 1
+  },
+
+  "BATTERY_INFO,Battery": {
+    "add": "010005",
+    "len": "1",
+    "code": "_1_Byte_to_Decimal",
+    "hide": 0
+  },
+
+
+  "USER_DATA,UserDataLen": {
+    "add": "0200B8",
+    "len": "2",
+    "code": "_2_Byte_to_Decimal",
+    "hide": 1
+  },
+  "USER_DATA,UserData": {
+    "add": "0200BA",
+    "len": "320",
+    "code": "String",
+    "hide": 0
+  },
+
+  "CHANNEL_INFO,LowerLimitCh1": {
+    "add": "02007E",
+    "len": "2",
+    "code": "MonT2_Limit_Convert",
+    "hide": 0
+  },
+  "CHANNEL_INFO,UpperLimitCh1": {
+    "add": "02007C",
+    "len": "2",
+    "code": "MonT2_Limit_Convert",
+    "hide": 0
+  },
+  "CHANNEL_INFO,LowerLimitCh2": {
+    "add": "020086",
+    "len": "2",
+    "code": "MonT2_Limit_Convert",
+    "hide": 0
+  },
+  "CHANNEL_INFO,UpperLimitCh2": {
+    "add": "020084",
+    "len": "2",
+    "code": "MonT2_Limit_Convert",
+    "hide": 0
+  },
+  "SENSOR,SensorNumber": {
+    "add": "FE0000",
+    "len": "1",
+    "code": "MonT2_SensorNumber",
+    "hide": 0
+  },
+
+  "SENSOR,MonT2_Value_Decode": {
+    "add": "080000",
+    "len": "33280",
+    "code": "MonT2_Value_Decode",
+    "hide": 0
+  }
+
+}

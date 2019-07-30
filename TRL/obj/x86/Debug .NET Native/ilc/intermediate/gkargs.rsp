@@ -1,0 +1,12 @@
+﻿"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in\BouncyCastle.Crypto.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in\MailKit.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in\MimeKit.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in\Newtonsoft.Json.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in\PDF.dll"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in\TRL.exe"
+/Lib:"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in"
+/Lib:"C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\runtime.win10-x86.microsoft.net.native.compiler\2.2.3\tools\x86\ilc\lib\Private"
+/WinMD:"C:\Users\JiMin\source\repos\TRL\TRL\obj\x86\Debug .NET Native\ilc\in\WinMetadata\Windows.winmd"
+/VSTelemetrySessionSettings:"{"IsOptedIn":true,"HostName":"Dev14","AppInsightsInstrumentationKey":"f144292e-e3b2-4011-ac90-20e5c03fbce5","AsimovInstrumentationKey":"AIF-312cbd79-9dbb-4c48-a7da-3cc2a931cb70","AppId":1001,"UserId":"50874da3-118e-46b6-89d2-e78cc66a9f5c","Id":"3aefc665-386f-4456-9a0b-dd268c03d3c3","ProcessStartTime":636988310798005269}"
+/RdXmlPath:"C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\microsoft.net.native.compiler\2.2.3\tools\LibraryXML"
+/RunOnlyPreDR

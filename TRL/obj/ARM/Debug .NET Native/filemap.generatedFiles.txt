@@ -1,0 +1,10 @@
+obj\ARM\Debug .NET Native\filemap.pri
+obj\ARM\Debug .NET Native\filemap.map.txt
+obj\ARM\Debug .NET Native\filemap.scale-100.pri
+obj\ARM\Debug .NET Native\filemap.scale-100.map.txt
+obj\ARM\Debug .NET Native\filemap.scale-125.pri
+obj\ARM\Debug .NET Native\filemap.scale-125.map.txt
+obj\ARM\Debug .NET Native\filemap.scale-150.pri
+obj\ARM\Debug .NET Native\filemap.scale-150.map.txt
+obj\ARM\Debug .NET Native\filemap.scale-400.pri
+obj\ARM\Debug .NET Native\filemap.scale-400.map.txt

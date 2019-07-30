@@ -1,0 +1,14 @@
+﻿[ResourceMetadata]
+"ResourceId"			"split.scale-400"
+"ResourceDimensions"		"scale-400"
+
+[Files]
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\Upload\split.scale-400.pri"			"resources.pri"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Resources\logo.scale-400.png"			"Resources\logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Assets\Wide310x150Logo.scale-400.png"			"Assets\Wide310x150Logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Assets\StoreLogo.scale-400.png"			"Assets\StoreLogo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Assets\Square44x44Logo.scale-400.png"			"Assets\Square44x44Logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Assets\Square150x150Logo.scale-400.png"			"Assets\Square150x150Logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Assets\SplashScreen.scale-400.png"			"Assets\SplashScreen.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Assets\logo.scale-400.png"			"Assets\logo.scale-400.png"
+"C:\Users\JiMin\source\repos\TRL\TRL\obj\ARM\Debug .NET Native\PackageUploadLayout\Assets\LargeTile.scale-400.png"			"Assets\LargeTile.scale-400.png"
